@@ -5,6 +5,8 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ToastModule } from 'primeng/toast';
 
+import { environment } from '../../environments/environment';
+
 @Component({
   selector: 'app-root',
   imports: [CommonModule, ConfirmDialogModule, RouterOutlet, ToastModule],
@@ -20,4 +22,6 @@ import { ToastModule } from 'primeng/toast';
     `,
   ],
 })
-export class AppComponent {}
+export class AppComponent {
+  protected version = environment.version;
+}

@@ -17,8 +17,9 @@ ENV ADMIN__PASSOWRD=
 ENV IDS__SEED=
 
 COPY src/server/bin/Release/publish .
+RUN mkdir -p wwwroot
 COPY src/client/dist/movie-graphs/browser ./wwwroot/
 
 HEALTHCHECK CMD wget --no-verbose --tries=1 --spider http://localhost/healthz || exit 1
 
-ENTRYPOINT ["dotnet", "MoviewGraphs.dll"]
+ENTRYPOINT ["dotnet", "MovieGraphs.dll"]
