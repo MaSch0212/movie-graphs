@@ -1,0 +1,101 @@
+@use 'sass:list';
+
+@layer tailwind-base, primeng, tailwind-utilities;
+
+@mixin classStartsWith($prefixes...) {
+  $selector: '';
+  @for $i from 1 through list.length($prefixes) {
+    @if $i > 1 {
+      $selector: $selector + ', ';
+    }
+    $prefix: list.nth($prefixes, $i);
+    $selector: $selector + "[class^='#{$prefix}'], [class*='#{$prefix}']";
+  }
+  @at-root #{$selector} {
+    @content;
+  }
+}
+
+@layer tailwind-base {
+  @tailwind base;
+
+  html,
+  body {
+    @apply m-0 h-full bg-surface-50 p-0 font-sans antialiased;
+    touch-action: none;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
+    @apply m-0;
+  }
+
+  @include classStartsWith('i-[') {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    min-width: 1em;
+    min-height: 1em;
+    vertical-align: -0.125em;
+  }
+
+  @include classStartsWith('i-[mdi--') {
+    background-color: currentColor;
+    -webkit-mask-image: var(--svg);
+    mask-image: var(--svg);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    body {
+      @apply bg-surface-800;
+    }
+  }
+}
+
+@layer tailwind-utilities {
+  @tailwind components;
+  @tailwind utilities;
+
+  .helper-text {
+    @apply line-clamp-2 px-4 pt-1;
+    &::before {
+      @extend [class^='i-['];
+      @extend [class^='i-[mdi--'];
+      content: ' ';
+    }
+  }
+  .helper-text-info {
+    @extend .helper-text;
+    @apply i-[mdi--information];
+    &::before {
+      @apply text-blue-500;
+    }
+  }
+  .helper-text-warning {
+    @extend .helper-text;
+    @apply i-[mdi--alert];
+    &::before {
+      @apply text-yellow-500;
+    }
+  }
+  .helper-text-error {
+    @extend .helper-text;
+    @apply i-[mdi--alert-circle] text-red-500;
+  }
+  .helper-text-success {
+    @extend .helper-text;
+    @apply i-[mdi--check-circle];
+    &::before {
+      @apply text-green-500;
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "movie-graphs-repo",
+  "version": "0.0.0",
+  "type": "module",
+  "packageManager": "pnpm@9.2.0",
+  "scripts": {
+    "preinstall": "pnpm install -C src/client && dotnet restore",
+    "build": "pnpm server:build && pnpm client:build && pnpm docker:build",
+    "push": "pnpm docker:push",
+    "migrations:add": "node src/scripts/add-migration.js",
+    "migrations:remove": "node src/scripts/remove-migration.js",
+    "server:build": "dotnet publish src/server -c Release",
+    "client:build": "pnpm run -C src/client build",
+    "docker:build": "node src/scripts/docker-build.js",
+    "docker:build:inttest": "node src/scripts/docker-build-inttest.js",
+    "docker:push": "node src/scripts/docker-push.js",
+    "test:integration": "dotnet test test/MinigolfFriday.IntegrationTests/MinigolfFriday.IntegrationTests.csproj"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10"
+  }
+}

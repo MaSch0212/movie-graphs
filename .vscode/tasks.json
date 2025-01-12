@@ -1,0 +1,80 @@
+{
+  "tasks": [
+    {
+      "label": "🚀 Start Client",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}/src/client"
+      },
+      "command": "pnpm run start",
+      "group": {
+        "kind": "build"
+      }
+    },
+    {
+      "label": "🚀 Start Server (watch)",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}/src/server",
+        "env": {
+          "ENABLE_DEV_ENDPOINTS": "true"
+        }
+      },
+      "command": "dotnet watch run",
+      "group": {
+        "kind": "build"
+      }
+    },
+    {
+      "label": "🚀 Start",
+      "dependsOn": ["🚀 Start Client", "🚀 Start Server (watch)"],
+      "group": {
+        "kind": "build"
+      }
+    },
+    {
+      "label": "🚀 Start Client (with Service Worker)",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}/src/client"
+      },
+      "command": "pnpm run build && pnpm run start:sw",
+      "group": {
+        "kind": "build"
+      }
+    },
+    {
+      "label": "🚀 Start Client (Stubbed)",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}/src/client"
+      },
+      "command": "pnpm run start:stub",
+      "group": {
+        "kind": "build"
+      }
+    },
+    {
+      "label": "🐋 Build docker image",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}/src/scripts"
+      },
+      "command": "pnpm docker:build",
+      "group": {
+        "kind": "build"
+      }
+    },
+    {
+      "label": "🐋 Push docker image",
+      "type": "shell",
+      "options": {
+        "cwd": "${workspaceFolder}/src/scripts"
+      },
+      "command": "pnpm docker:push",
+      "group": {
+        "kind": "build"
+      }
+    }
+  ]
+}

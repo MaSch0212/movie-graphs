@@ -1,0 +1,118 @@
+<p-dialog
+  [header]="nodeToUpdate() ? 'Update Movie' : 'Create Movie'"
+  [visible]="visible()"
+  (visibleChange)="visible.set($event)"
+  [modal]="true"
+  [draggable]="false"
+  [resizable]="false"
+  styleClass="w-[400px]"
+>
+  <div class="flex flex-col gap-6 pt-2" [formGroup]="form">
+    @if (hasFailed()) {
+      <p-message class="-mt-4" severity="error">
+        <ng-template pTemplate>
+          <span class="i-[mdi--close-circle-outline] mr-2"></span>
+          <span>Saving the movie failed. Try again later.</span>
+        </ng-template>
+      </p-message>
+    }
+
+    <div>
+      <p-floatlabel variant="on">
+        <input pInputText type="text" formControlName="name" id="nodeName" class="w-full" />
+        <label for="nodeName">Name</label>
+      </p-floatlabel>
+      @if (form.controls.name.dirty) {
+        @if (form.controls.name.errors; as errors) {
+          <small class="helper-text-error">
+            @if (errors['required']) {
+              Name is required
+            } @else {
+              Name is invalid
+            }
+          </small>
+        }
+      }
+    </div>
+
+    <div class="self-center">
+      <div class="relative h-[225px] w-[150px] overflow-hidden rounded">
+        @if (imageSource(); as imageSource) {
+          <img [src]="imageSource" class="absolute size-full object-cover" />
+        } @else {
+          <div
+            class="absolute size-full rounded-lg border-2 border-dashed border-surface-500"
+          ></div>
+          <div class="i-[mdi--image-album] text-[4rem] text-surface-500 absolute-center"></div>
+        }
+        <input
+          #fileInput
+          type="file"
+          accept="image/*"
+          (change)="onImageFileChange($event)"
+          class="absolute size-full cursor-pointer opacity-0"
+        />
+      </div>
+      @if (form.controls.imageFile.dirty) {
+        @if (form.controls.imageFile.errors; as errors) {
+          <small class="helper-text-error">
+            @if (errors['required']) {
+              Name is required
+            } @else if (errors['imageFile']) {
+              errors['imageFile']
+            } @else {
+              Name is invalid
+            }
+          </small>
+        }
+      }
+    </div>
+
+    <div>
+      <p-floatlabel variant="on">
+        <p-multiselect
+          class="w-full"
+          [appendTo]="'body'"
+          [options]="otherNodes()"
+          formControlName="dependsOn"
+          optionLabel="name"
+          inputId="dependsOn"
+          [resetFilterOnHide]="true"
+        />
+        <label for="dependsOn">Depends On</label>
+      </p-floatlabel>
+      @if (form.controls.name.dirty) {
+        @if (form.controls.name.errors; as errors) {
+          <small class="helper-text-error">
+            @if (errors['required']) {
+              Name is required
+            } @else {
+              Name is invalid
+            }
+          </small>
+        }
+      }
+    </div>
+
+    @if (nodeToUpdate()) {
+      <div>
+        <p-checkbox formControlName="watched" binary="true" inputId="watched" />
+        <label class="ml-2" for="watched">Watched</label>
+      </div>
+    }
+  </div>
+  <ng-template pTemplate="footer">
+    @if (nodeToUpdate()) {
+      <p-button
+        [disabled]="isLoading()"
+        [text]="true"
+        [severity]="'danger'"
+        label="Delete"
+        (onClick)="delete()"
+      />
+    }
+    <div class="-mx-1 grow"></div>
+    <p-button [disabled]="isLoading()" [text]="true" label="Cancel" (onClick)="close()" />
+    <p-button [disabled]="isLoading()" label="Save" (onClick)="submit()" />
+  </ng-template>
+</p-dialog>

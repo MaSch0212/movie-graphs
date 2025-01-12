@@ -1,0 +1,158 @@
+<div class="flex h-full flex-col">
+  @if (graph.error(); as error) {
+    <p-message [severity]="'error'" text="Failed to load graph." />
+  } @else if (graph.isLoading()) {
+    <p-progressSpinner class="absolute-center" />
+  } @else {
+    @if (graph.value(); as graphValue) {
+      <div class="flex flex-row items-center gap-2 bg-primary px-4 py-2">
+        <p-button
+          icon="i-[mdi--home]"
+          [rounded]="true"
+          size="small"
+          pTooltip="Back to Home"
+          (onClick)="navigateToHome()"
+        />
+        <div class="flex min-w-0 grow flex-col text-primary-contrast">
+          <h1
+            class="line-clamp-2 text-base font-semibold sm:line-clamp-none sm:truncate sm:text-xl md:text-2xl"
+          >
+            {{ graphName() }}
+          </h1>
+          <span class="text-sm">/graph/{{ graphValue.graph.id }} </span>
+        </div>
+        <p-button
+          icon="i-[mdi--content-copy]"
+          [rounded]="true"
+          size="small"
+          pTooltip="Copy Address"
+          (onClick)="copyUrl()"
+        />
+      </div>
+      <div class="relative min-h-0 grow">
+        <ngx-graph
+          #graphView
+          [nodes]="nodes()"
+          [links]="links()"
+          layout="dagre"
+          [layoutSettings]="{
+            rankPadding: 50,
+            nodePadding: 0,
+          }"
+          class="block h-full overflow-hidden"
+          [nodeWidth]="90"
+          [nodeHeight]="135"
+          [draggingEnabled]="false"
+          [curve]="shape.curveLinear"
+        >
+          <ng-template #defsTemplate>
+            <svg:marker
+              id="arrow"
+              viewBox="0 -5 10 10"
+              refX="8"
+              refY="0"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto"
+            >
+              <svg:path d="M0,-5L10,0L0,5" class="arrow-head fill-primary" />
+            </svg:marker>
+          </ng-template>
+
+          <ng-template #nodeTemplate let-node>
+            <svg:g
+              [pTooltip]="node.label"
+              [positionLeft]="(node.dimension.width / 2) * graphView.zoomLevel"
+              [fitContent]="false"
+              (click)="nodeDialog.open(node.data)"
+            >
+              <svg:image
+                x="5"
+                y="5"
+                [attr.width]="node.dimension.width - 10"
+                [attr.height]="node.dimension.height - 10"
+                [attr.href]="node.data.imageUrl"
+                [attr.preserveAspectRatio]="'xMidYMid slice'"
+                [attr.opacity]="node.data.watched ? 0.7 : 1"
+              />
+              @if (node.data.watched) {
+                <svg:circle
+                  [attr.cx]="node.dimension.width - 15"
+                  cy="15"
+                  r="20"
+                  class="fill-primary"
+                />
+                <!-- Add a checkmark to the circle -->
+                <svg:path
+                  d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M16.59 7.58L10 14.17L7.41 11.59L6 13L10 17L18 9L16.59 7.58Z"
+                  class="fill-primary-contrast"
+                  [attr.transform]="
+                    'translate(' + (node.dimension.width - 33) + ', -3) scale(1.5, 1.5)'
+                  "
+                />
+              }
+            </svg:g>
+          </ng-template>
+
+          <ng-template #linkTemplate let-link>
+            <svg:g class="edge">
+              <svg:path
+                class="line stroke-primary"
+                stroke-width="2"
+                marker-end="url(#arrow)"
+              ></svg:path>
+            </svg:g>
+          </ng-template>
+        </ngx-graph>
+
+        <div
+          class="absolute bottom-2 left-2 flex flex-row gap-2 rounded-full bg-surface-50 !bg-opacity-70 p-2 backdrop-blur dark:bg-surface-800"
+        >
+          <p-button
+            icon="i-[mdi--plus]"
+            [rounded]="true"
+            [size]="'large'"
+            [text]="true"
+            pTooltip="Add movie"
+            (onClick)="nodeDialog.open()"
+          />
+        </div>
+
+        <div
+          class="absolute bottom-2 right-2 flex flex-row gap-2 rounded-full bg-surface-50 !bg-opacity-70 p-2 backdrop-blur dark:bg-surface-800"
+        >
+          <p-button
+            icon="i-[mdi--arrow-collapse-all]"
+            [rounded]="true"
+            [text]="true"
+            [size]="'large'"
+            pTooltip="Center viewport"
+            (onClick)="graphView.zoomToFit(); graphView.center()"
+          />
+          <p-button
+            icon="i-[mdi--magnify-minus-outline]"
+            [rounded]="true"
+            [text]="true"
+            [size]="'large'"
+            pTooltip="Zoom Out"
+            (onClick)="zoomCenter(0.67)"
+          />
+          <p-button
+            icon="i-[mdi--magnify-plus-outline]"
+            [rounded]="true"
+            [text]="true"
+            [size]="'large'"
+            pTooltip="Zoom In"
+            (onClick)="zoomCenter(1.33)"
+          />
+        </div>
+      </div>
+
+      <app-graph-node-dialog
+        #nodeDialog
+        [graph]="graphValue.graph"
+        (nodeChange)="onNodeChange($event)"
+      />
+    }
+  }
+</div>
