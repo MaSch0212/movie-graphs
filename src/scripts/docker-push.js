@@ -38,4 +38,4 @@ spawnSync("docker", ["push", `${repository}/${imageName}:latest`], {
   stdio: "inherit",
 });
 
-appendFileSync(process.env.GITHUB_OUTPUT, `docker_tag=${tag}\n`);
+// appendFileSync(process.env.GITHUB_OUTPUT, `docker_tag=${tag}\n`);

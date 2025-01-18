@@ -17,7 +17,9 @@ public class GraphMapper(IHttpContextAccessor httpContextAccessor, IIdService id
                     idService.GraphNode.Encode(n.Id),
                     n.Name,
                     GetImageUrl(httpContextAccessor, idService, n.ImageId),
-                    n.Watched
+                    n.Status,
+                    n.Duration,
+                    n.WhereToWatch
                 ))
                 .ToArray(),
             g.Nodes.SelectMany(n => n.OutgoingEdges)
@@ -33,7 +35,9 @@ public class GraphMapper(IHttpContextAccessor httpContextAccessor, IIdService id
             idService.GraphNode.Encode(n.Id),
             n.Name,
             GetImageUrl(httpContextAccessor, idService, n.ImageId),
-            n.Watched
+            n.Status,
+            n.Duration,
+            n.WhereToWatch
         );
 
     private static string GetImageUrl(

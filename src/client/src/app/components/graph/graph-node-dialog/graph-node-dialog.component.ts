@@ -7,18 +7,22 @@ import {
   input,
   output,
   signal,
+  viewChild,
 } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ConfirmationService } from 'primeng/api';
+import { AutoComplete, AutoCompleteCompleteEvent, AutoCompleteModule } from 'primeng/autocomplete';
 import { ButtonModule } from 'primeng/button';
 import { CheckboxModule } from 'primeng/checkbox';
+import { DatePickerModule } from 'primeng/datepicker';
 import { DialogModule } from 'primeng/dialog';
 import { FloatLabelModule } from 'primeng/floatlabel';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { MultiSelectModule } from 'primeng/multiselect';
+import { SelectModule } from 'primeng/select';
 
-import { ApiGraph, ApiGraphEdge, ApiGraphNode } from '../../../api/models';
+import { ApiGraph, ApiGraphEdge, ApiGraphNode, ApiGraphNodeStatus } from '../../../api/models';
 import { GraphsService } from '../../../api/services';
 import { imageFileValidator } from '../../../utils/image-file-validator';
 import { Logger } from '../../../utils/logger';
@@ -29,17 +33,28 @@ export type NodeChangeEvent = {
   kind: 'create' | 'update' | 'delete';
 };
 
+function fromTimeSpan(timeSpan: string): Date {
+  return new Date(`2000-01-01T${timeSpan}`);
+}
+
+function toTimeSpan(date: Date): string {
+  return date.toTimeString().slice(0, 8);
+}
+
 @Component({
   selector: 'app-graph-node-dialog',
   imports: [
+    AutoCompleteModule,
     ButtonModule,
     CheckboxModule,
+    DatePickerModule,
     DialogModule,
     FloatLabelModule,
     InputTextModule,
     MessageModule,
     MultiSelectModule,
     ReactiveFormsModule,
+    SelectModule,
   ],
   templateUrl: './graph-node-dialog.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,17 +64,30 @@ export class GraphNodeDialogComponent {
   private readonly _graphsService = inject(GraphsService);
   private readonly _confirmationService = inject(ConfirmationService);
 
+  private readonly _whereToWatch = viewChild(AutoComplete);
+
   public readonly graph = input.required<ApiGraph>();
 
   public readonly nodeChange = output<NodeChangeEvent>();
 
+  private readonly _allUsedWhereToWatch = computed(() =>
+    Array.from(
+      new Set(
+        this.graph()
+          .nodes.map(node => node.whereToWatch)
+          .filter((whereToWatch): whereToWatch is string => !!whereToWatch)
+      )
+    ).sort()
+  );
   protected readonly form = new FormGroup({
     name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
     imageFile: new FormControl<File | String | null>(null, {
       validators: [Validators.required, imageFileValidator],
     }),
     dependsOn: new FormControl<ApiGraphNode[]>([]),
-    watched: new FormControl<boolean>(false),
+    status: new FormControl<ApiGraphNodeStatus>('unwatched'),
+    duration: new FormControl<Date | undefined>(undefined),
+    whereToWatch: new FormControl<string>(''),
   });
   protected readonly nodeToUpdate = signal<ApiGraphNode | undefined>(undefined);
   protected readonly visible = signal(false);
@@ -71,6 +99,14 @@ export class GraphNodeDialogComponent {
       .nodes.filter(node => node.id !== this.nodeToUpdate()?.id)
       .sort((a, b) => a.name.localeCompare(b.name))
   );
+  protected readonly defaultDuration = new Date('2000-01-01T00:00:00');
+  protected readonly statusOptions: ApiGraphNodeStatus[] = [
+    'unwatched',
+    'watching',
+    'watched',
+    'ignored',
+  ];
+  protected readonly whereToWatchSuggestions = signal<string[]>([]);
 
   public open(nodeToUpdate?: ApiGraphNode): void {
     this.nodeToUpdate.set(nodeToUpdate);
@@ -78,7 +114,9 @@ export class GraphNodeDialogComponent {
       name: nodeToUpdate?.name ?? '',
       imageFile: nodeToUpdate?.imageUrl ?? null,
       dependsOn: nodeToUpdate ? this.determineDependsOn(nodeToUpdate) : [],
-      watched: nodeToUpdate?.watched ?? false,
+      status: nodeToUpdate?.status ?? 'unwatched',
+      duration: nodeToUpdate?.duration ? fromTimeSpan(nodeToUpdate.duration) : undefined,
+      whereToWatch: nodeToUpdate?.whereToWatch ?? '',
     });
     this.imageSource.set(nodeToUpdate?.imageUrl ?? null);
     this.visible.set(true);
@@ -106,6 +144,14 @@ export class GraphNodeDialogComponent {
     this.cd.markForCheck();
   }
 
+  protected searchWhereToWatch(event: AutoCompleteCompleteEvent) {
+    this.whereToWatchSuggestions.set(
+      this._allUsedWhereToWatch().filter(whereToWatch =>
+        whereToWatch.toLowerCase().includes(event.query.toLowerCase())
+      )
+    );
+  }
+
   protected async submit() {
     if (!this.form.valid) {
       this.form.markAsDirty();
@@ -122,7 +168,9 @@ export class GraphNodeDialogComponent {
               name: this.form.value.name as string,
               image:
                 this.form.value.imageFile instanceof File ? this.form.value.imageFile : undefined,
-              watched: this.form.value.watched,
+              status: this.form.value.status,
+              duration: this.form.value.duration ? toTimeSpan(this.form.value.duration) : null,
+              whereToWatch: this.form.value.whereToWatch,
             },
           })
         : await this._graphsService.createGraphNode({

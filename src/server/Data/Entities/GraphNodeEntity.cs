@@ -3,13 +3,23 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace MovieGraphs.Data.Entities;
 
+public enum GraphNodeStatus
+{
+    Unwatched,
+    Watching,
+    Watched,
+    Ignored
+}
+
 public class GraphNodeEntity
 {
     public long Id { get; set; }
     public long GraphId { get; set; }
     public string Name { get; set; } = null!;
     public long ImageId { get; set; }
-    public bool Watched { get; set; } = false;
+    public GraphNodeStatus Status { get; set; } = GraphNodeStatus.Unwatched;
+    public TimeSpan? Duration { get; set; }
+    public string? WhereToWatch { get; set; }
 
     public GraphEntity Graph { get; set; } = null!;
     public ImageEntity Image { get; set; } = null!;
@@ -24,7 +34,9 @@ public class GraphNodeEntity
         builder.Property(x => x.GraphId).HasColumnName("graph_id").IsRequired();
         builder.Property(x => x.Name).HasColumnName("name").HasMaxLength(255).IsRequired();
         builder.Property(x => x.ImageId).HasColumnName("image_id").IsRequired();
-        builder.Property(x => x.Watched).HasColumnName("watched").IsRequired();
+        builder.Property(x => x.Status).HasColumnName("status").IsRequired();
+        builder.Property(x => x.Duration).HasColumnName("duration").IsRequired(false);
+        builder.Property(x => x.WhereToWatch).HasColumnName("where_to_watch").IsRequired(false);
 
         builder
             .HasOne(x => x.Graph)

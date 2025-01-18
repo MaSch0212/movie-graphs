@@ -44,6 +44,7 @@ builder.Services.SwaggerDocument(c =>
     c.DocumentSettings = d =>
     {
         d.OperationProcessors.Add(new OperationIdProcessor());
+        d.DocumentProcessors.Add(new KebabCaseEnumProcessor());
     };
     c.EnableJWTBearerAuth = false;
     c.ShortSchemaNames = true;

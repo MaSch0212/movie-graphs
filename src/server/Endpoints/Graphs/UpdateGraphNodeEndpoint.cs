@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 using FastEndpoints;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
 using MovieGraphs.Common;
 using MovieGraphs.Data;
+using MovieGraphs.Data.Entities;
 using MovieGraphs.Mappers;
 using MovieGraphs.Models;
 using MovieGraphs.Services;
@@ -18,7 +20,9 @@ public record UpdateGraphNodeRequest(
     [property: Required] string GraphNodeId,
     string? Name,
     IFormFile? Image,
-    bool? Watched
+    GraphNodeStatus? Status,
+    TimeSpan? Duration,
+    string? WhereToWatch
 );
 
 /// <param name="Node">The updated node.</param>
@@ -91,8 +95,12 @@ public class UpdateGraphNodeEndpoint(
             node.Image.Data = imageData;
             node.Image.LastModified = DateTimeOffset.UtcNow;
         }
-        if (req.Watched is not null)
-            node.Watched = req.Watched.Value;
+        if (req.Status is not null)
+            node.Status = req.Status.Value;
+        if (Form.Keys.Contains("duration"))
+            node.Duration = req.Duration;
+        if (Form.Keys.Contains("whereToWatch"))
+            node.WhereToWatch = req.WhereToWatch;
 
         await databaseContext.SaveChangesAsync(ct);
         await SendAsync(new(graphMapper.ToGraphNodeExpression.Compile()(node)), cancellation: ct);

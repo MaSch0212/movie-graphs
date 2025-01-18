@@ -90,7 +90,9 @@ public class CreateGraphNodeEndpoint(DatabaseContext databaseContext, IIdService
                     idService.GraphNode.Encode(node.Id),
                     node.Name,
                     $"images/{idService.Image.Encode(node.ImageId)}",
-                    node.Watched
+                    node.Status,
+                    node.Duration,
+                    node.WhereToWatch
                 )
             ),
             cancellation: ct

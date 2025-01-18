@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using MovieGraphs.Data.Entities;
 
 namespace MovieGraphs.Models;
 
@@ -13,7 +14,9 @@ public record GraphNode(
     [property: Required] string Id,
     [property: Required] string Name,
     [property: Required] string ImageUrl,
-    [property: Required] bool Watched
+    [property: Required] GraphNodeStatus Status,
+    TimeSpan? Duration,
+    string? WhereToWatch
 );
 
 public record GraphEdge(

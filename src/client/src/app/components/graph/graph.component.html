@@ -57,6 +57,16 @@
             >
               <svg:path d="M0,-5L10,0L0,5" class="arrow-head fill-primary" />
             </svg:marker>
+            <svg:filter id="grayscale">
+              <svg:feColorMatrix
+                type="matrix"
+                values="
+                0.33 0.33 0.33 0 0
+                0.33 0.33 0.33 0 0
+                0.33 0.33 0.33 0 0
+                0    0    0    1 0"
+              />
+            </svg:filter>
           </ng-template>
 
           <ng-template #nodeTemplate let-node>
@@ -73,23 +83,60 @@
                 [attr.height]="node.dimension.height - 10"
                 [attr.href]="node.data.imageUrl"
                 [attr.preserveAspectRatio]="'xMidYMid slice'"
-                [attr.opacity]="node.data.watched ? 0.7 : 1"
+                [attr.opacity]="
+                  node.data.status === 'watched' || node.data.status === 'ignored' ? 0.7 : 1
+                "
+                [attr.filter]="node.data.status === 'ignored' ? 'url(#grayscale)' : null"
               />
-              @if (node.data.watched) {
-                <svg:circle
-                  [attr.cx]="node.dimension.width - 15"
-                  cy="15"
-                  r="20"
-                  class="fill-primary"
-                />
-                <!-- Add a checkmark to the circle -->
-                <svg:path
-                  d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M16.59 7.58L10 14.17L7.41 11.59L6 13L10 17L18 9L16.59 7.58Z"
-                  class="fill-primary-contrast"
-                  [attr.transform]="
-                    'translate(' + (node.dimension.width - 33) + ', -3) scale(1.5, 1.5)'
-                  "
-                />
+              @switch (node.data.status) {
+                @case ('watched') {
+                  <svg:circle
+                    [attr.cx]="node.dimension.width - 15"
+                    cy="15"
+                    r="20"
+                    class="fill-primary"
+                  />
+                  <!-- Add a checkmark to the circle -->
+                  <svg:path
+                    d="M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M12 20C7.59 20 4 16.41 4 12S7.59 4 12 4 20 7.59 20 12 16.41 20 12 20M16.59 7.58L10 14.17L7.41 11.59L6 13L10 17L18 9L16.59 7.58Z"
+                    class="fill-primary-contrast"
+                    [attr.transform]="
+                      'translate(' + (node.dimension.width - 33) + ', -3) scale(1.5, 1.5)'
+                    "
+                  />
+                }
+                @case ('watching') {
+                  <svg:circle
+                    [attr.cx]="node.dimension.width - 15"
+                    cy="15"
+                    r="20"
+                    class="fill-sky-500"
+                  />
+                  <!-- Add a checkmark to the circle -->
+                  <svg:path
+                    d="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z"
+                    class="fill-white"
+                    [attr.transform]="
+                      'translate(' + (node.dimension.width - 33) + ', -3) scale(1.5, 1.5)'
+                    "
+                  />
+                }
+                @case ('ignored') {
+                  <svg:circle
+                    [attr.cx]="node.dimension.width - 15"
+                    cy="15"
+                    r="20"
+                    class="fill-gray-400"
+                  />
+                  <!-- Add a checkmark to the circle -->
+                  <svg:path
+                    d="M12,20C7.59,20 4,16.41 4,12C4,7.59 7.59,4 12,4C16.41,4 20,7.59 20,12C20,16.41 16.41,20 12,20M12,2C6.47,2 2,6.47 2,12C2,17.53 6.47,22 12,22C17.53,22 22,17.53 22,12C22,6.47 17.53,2 12,2M14.59,8L12,10.59L9.41,8L8,9.41L10.59,12L8,14.59L9.41,16L12,13.41L14.59,16L16,14.59L13.41,12L16,9.41L14.59,8Z"
+                    class="fill-white"
+                    [attr.transform]="
+                      'translate(' + (node.dimension.width - 33) + ', -3) scale(1.5, 1.5)'
+                    "
+                  />
+                }
               }
             </svg:g>
           </ng-template>

@@ -35,6 +35,80 @@
       }
     </div>
 
+    @if (nodeToUpdate()) {
+      <div class="grid grid-cols-2 gap-2">
+        <div class="col-start-1">
+          <p-floatlabel variant="on">
+            <p-select
+              class="w-full"
+              [appendTo]="'body'"
+              [options]="statusOptions"
+              formControlName="status"
+              inputId="status"
+            />
+            <label for="status">Status</label>
+          </p-floatlabel>
+        </div>
+
+        <div class="col-start-2">
+          <p-floatlabel variant="on">
+            <p-datepicker
+              formControlName="duration"
+              [appendTo]="'body'"
+              inputId="duration"
+              [showClear]="true"
+              [timeOnly]="true"
+              [defaultDate]="defaultDuration"
+              [hourFormat]="'24'"
+            />
+            <label for="duration">Duration</label>
+          </p-floatlabel>
+        </div>
+      </div>
+
+      <div>
+        <p-floatlabel variant="on">
+          <p-auto-complete
+            formControlName="whereToWatch"
+            inputId="whereToWatch"
+            [appendTo]="'body'"
+            [delay]="0"
+            [dropdown]="true"
+            [suggestions]="whereToWatchSuggestions()"
+            (completeMethod)="searchWhereToWatch($event)"
+            styleClass="w-full"
+          />
+          <label for="whereToWatch">Where to Watch</label>
+        </p-floatlabel>
+      </div>
+    }
+
+    <div>
+      <p-floatlabel variant="on">
+        <p-multiselect
+          class="w-full"
+          [appendTo]="'body'"
+          [options]="otherNodes()"
+          formControlName="dependsOn"
+          optionLabel="name"
+          inputId="dependsOn"
+          [resetFilterOnHide]="true"
+        />
+        <label for="dependsOn">Depends On</label>
+      </p-floatlabel>
+      @if (form.controls.name.dirty) {
+        @if (form.controls.name.errors; as errors) {
+          <small class="helper-text-error">
+            @if (errors['required']) {
+              Name is required
+            } @else {
+              Name is invalid
+            }
+          </small>
+        }
+      }
+    </div>
+
     <div class="self-center">
       <div class="relative h-[225px] w-[150px] overflow-hidden rounded">
         @if (imageSource(); as imageSource) {
@@ -67,39 +141,6 @@
         }
       }
     </div>
-
-    <div>
-      <p-floatlabel variant="on">
-        <p-multiselect
-          class="w-full"
-          [appendTo]="'body'"
-          [options]="otherNodes()"
-          formControlName="dependsOn"
-          optionLabel="name"
-          inputId="dependsOn"
-          [resetFilterOnHide]="true"
-        />
-        <label for="dependsOn">Depends On</label>
-      </p-floatlabel>
-      @if (form.controls.name.dirty) {
-        @if (form.controls.name.errors; as errors) {
-          <small class="helper-text-error">
-            @if (errors['required']) {
-              Name is required
-            } @else {
-              Name is invalid
-            }
-          </small>
-        }
-      }
-    </div>
-
-    @if (nodeToUpdate()) {
-      <div>
-        <p-checkbox formControlName="watched" binary="true" inputId="watched" />
-        <label class="ml-2" for="watched">Watched</label>
-      </div>
-    }
   </div>
   <ng-template pTemplate="footer">
     @if (nodeToUpdate()) {
