@@ -1,4 +1,4 @@
-/* eslint-disable no-console */
+/* oxlint-disable no-console */
 import { getLogLevelEnabled } from './storage';
 
 export class Logger {

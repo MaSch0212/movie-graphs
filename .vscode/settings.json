@@ -2,8 +2,8 @@
   "explorer.fileNesting.enabled": true,
   "explorer.fileNesting.expand": false,
   "explorer.fileNesting.patterns": {
-    "project.json": "package.json, .prettier*, .eslint*, .npm*, jest*, nx.json, pnpm-lock.yaml, tsconfig*, angular.json, ng-package.json, playwright*, tailwind*",
-    "package.json": ".prettier*, .eslint*, .npm*, jest*, nx.json, pnpm-lock.yaml, tsconfig*, angular.json, ng-package.json, playwright*, tailwind*",
+    "project.json": "package.json, .oxlintrc*, .oxfmtrc*, .postcssrc*, .npm*, vitest*, nx.json, pnpm-*, tsconfig*, angular.json, ng-package.json, playwright*",
+    "package.json": ".oxlintrc*, .oxfmtrc*, .postcssrc*, .npm*, vitest*, nx.json, pnpm-*, tsconfig*, angular.json, ng-package.json, playwright*",
     "*.ts": "$(capture).spec.ts, $(capture).test.ts, $(capture).d.ts, $(capture).js, $(capture).js.map, $(capture).ts.map",
     "*.js": "$(capture).d.ts, $(capture).js.map",
     "*.css": "$(capture).css.map"
@@ -13,7 +13,7 @@
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit"
   },
-  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.defaultFormatter": "oxc.oxc-vscode",
 
   "search.exclude": {
     "**/node_modules": true,
@@ -33,15 +33,13 @@
   },
   "editor.rulers": [100],
 
-  "tailwindCSS.rootFontSize": 14,
-  "tailwindCSS.classAttributes": ["class", "className", "ngClass", "styleClass"],
-  "tailwindCSS.experimental.configFile": "src/client/tailwind.config.js",
-  "css.customData": [".vscode/tailwind.json"],
+  "tailwindCSS.classAttributes": ["class", "className", "ngClass"],
+  "tailwindCSS.experimental.configFile": "src/client/src/styles.css",
   "task.autoDetect": "off",
   "[xml]": {
     "editor.defaultFormatter": "DotJoshJohnson.xml"
   },
-  "cSpell.words": ["Minigolf", "Timeslot", "Timeslots"]
+  "cSpell.words": ["oxfmt", "oxlint"]
 
   // Remove comments if branch policies are used
   // "git.branchProtection": ["main", "master"],

@@ -1,2 +1,14 @@
 # Only install package versions that have been published for at least 2 days (in minutes)
 minimumReleaseAge: 2880
+
+# Dependencies that are allowed (true) or not allowed (false) to run install scripts
+allowBuilds:
+  esbuild: true
+  '@parcel/watcher': false
+  lmdb: false
+  msgpackr-extract: false
+  unrs-resolver: false
+
+overrides:
+  # eslint-plugin-ng-module-sort pins an older version that does not support ESLint 10 / TypeScript 6
+  'eslint-plugin-ng-module-sort>@typescript-eslint/utils': ^8.71.2

@@ -28,9 +28,9 @@ docker run -d \
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/en/) (minimum version: 18.17.1)
+- [Node.js](https://nodejs.org/en/) 24 (see `.node-version`, e.g. via [fnm](https://github.com/Schniz/fnm))
   - Enable corepack by running `corepack enable` in a terminal.
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
+- [.NET 10 SDK](https://dotnet.microsoft.com/download/dotnet/10.0)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) or [Docker Engine](https://docs.docker.com/engine/install/)
 - [Visual Studio Code](https://code.visualstudio.com/) (optional)
 - [Visual Studio 2022](https://visualstudio.microsoft.com/vs/) or [C# Dev Kit for VS Code](https://marketplace.visualstudio.com/items?itemName=ms-dotnettools.csdevkit) (optional)
@@ -42,7 +42,7 @@ docker run -d \
 
 ### Run
 
-1. Run `dotnet watch run` in the `src/server/host` directory to start the server.
+1. Run `dotnet watch run` in the `src/server` directory to start the server.
 2. Run `pnpm run start` in the `src/client` directory to start the client.
 
 or
@@ -51,6 +51,14 @@ or
 
 Now you can visit [`https://localhost:5001`](https://localhost:5001) in your browser.
 The swagger UI is available at [`https://localhost:5001/swagger/index.html`](https://localhost:5001/swagger/index.html).
+
+### Lint, format and test (client)
+
+Run these in the `src/client` directory:
+
+- `pnpm lint` – lint with [oxlint](https://oxc.rs/docs/guide/usage/linter.html)
+- `pnpm format` / `pnpm format:check` – format with [oxfmt](https://oxc.rs/docs/guide/usage/formatter.html)
+- `pnpm test` – run the unit tests with Vitest
 
 ### Build
 

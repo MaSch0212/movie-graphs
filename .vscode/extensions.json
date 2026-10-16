@@ -1,8 +1,7 @@
 {
   "recommendations": [
-    "esbenp.prettier-vscode",
-    "firsttris.vscode-jest-runner",
-    "dbaeumer.vscode-eslint",
+    "oxc.oxc-vscode",
+    "vitest.explorer",
     "angular.ng-template",
     "bradlc.vscode-tailwindcss",
     "ms-dotnettools.csdevkit",
