@@ -24,6 +24,10 @@ var configureJsonSerializerOptions = new ConfigureJsonSerializerOptions();
 builder.Services.ConfigureOptions(configureJsonSerializerOptions);
 
 builder.Services.AddSingleton<IIdService, IdService>();
+builder.Services.AddSingleton<IImageResizeService, ImageResizeService>();
+
+// Holds resized images (sizes in bytes), so they don't need to be resized on every request.
+builder.Services.AddMemoryCache(o => o.SizeLimit = 64 * 1024 * 1024);
 
 builder.Services.AddScoped<IGraphMapper, GraphMapper>();
 
@@ -61,7 +65,10 @@ builder.Services.AddSpaStaticFiles(options =>
 
 var app = builder.Build();
 
-app.UseHttpsRedirection();
+// In development, plain HTTP stays usable for testing on other devices in the network: they
+// don't trust the development certificate (e.g. iOS can't load the home screen icon over it).
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();
 app.UseResponseCompression();
 
 app.UsePathBaseResolver();

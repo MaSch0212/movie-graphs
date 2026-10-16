@@ -68,9 +68,23 @@
   html,
   body {
     @apply h-full bg-canvas font-sans text-fg antialiased;
-    /* The graph handles all touch gestures itself; this also stops iOS from zooming the page. */
-    touch-action: none;
     overscroll-behavior: none;
+  }
+
+  /*
+   * The page itself must never zoom (pinch or double tap), only the graph does. Scrolling stays
+   * possible everywhere; the graph canvas opts out of all browser gestures with `touch-none`.
+   * Every element needs this, because the closest scroll container (e.g. inside a dialog) decides.
+   */
+  *,
+  ::before,
+  ::after {
+    touch-action: pan-x pan-y;
+  }
+
+  /* Scroll runway for full screen pages on touch devices, see GraphComponent. */
+  html.edge-to-edge body {
+    min-height: calc(100lvh + 62px);
   }
 
   /* Form controls are styled explicitly, so don't let iOS zoom in when focusing them. */
@@ -118,6 +132,22 @@
   }
   .field-error {
     @apply mt-1.5 flex items-center gap-1 text-xs text-danger;
+  }
+}
+
+/*
+ * Distance of top-aligned controls from the top of the screen: below the status bar / notch.
+ * iOS 27 draws a progressive blur over the top of home screen apps that reaches about 40pt below
+ * the status bar, so controls get extra clearance there to stay sharp.
+ */
+:root {
+  --app-top: max(0.75rem, env(safe-area-inset-top));
+}
+@supports (-webkit-touch-callout: none) {
+  @media (display-mode: standalone) {
+    :root {
+      --app-top: calc(env(safe-area-inset-top) + 40px);
+    }
   }
 }
 

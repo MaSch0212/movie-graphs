@@ -8,18 +8,31 @@ using MovieGraphs.Services;
 
 namespace MovieGraphs.Endpoints;
 
-public record DownloadImageRequest([property: Required] string ImageId);
+/// <param name="ImageId">The id of the image.</param>
+/// <param name="W">Optional width to scale the image down to (200, 400 or 800).</param>
+public record DownloadImageRequest(
+    [property: Required] string ImageId,
+    [property: QueryParam] int? W
+);
 
 public class DownloadImageRequestValidator : Validator<DownloadImageRequest>
 {
     public DownloadImageRequestValidator(IIdService idService)
     {
         RuleFor(x => x.ImageId).NotEmpty().ValidSqid(idService.Image);
+        RuleFor(x => x.W)
+            .Must(x => x is null || ImageResizeService.AllowedWidths.Contains(x.Value))
+            .WithMessage(
+                $"'w' must be one of: {string.Join(", ", ImageResizeService.AllowedWidths)}."
+            );
     }
 }
 
-public class DownloadImageEndpoint(DatabaseContext databaseContext, IIdService idService)
-    : Endpoint<DownloadImageRequest>
+public class DownloadImageEndpoint(
+    DatabaseContext databaseContext,
+    IIdService idService,
+    IImageResizeService imageResizeService
+) : Endpoint<DownloadImageRequest>
 {
     public override void Configure()
     {
@@ -44,9 +57,12 @@ public class DownloadImageEndpoint(DatabaseContext databaseContext, IIdService i
             return;
         }
 
-        var imageFormat = ImageDetector.GetImageFormat(image.Data);
+        var data = req.W is { } width
+            ? imageResizeService.Resize(imageId, image.LastModified, image.Data, width)
+            : image.Data;
+        var imageFormat = ImageDetector.GetImageFormat(data);
         await Send.BytesAsync(
-            image.Data,
+            data,
             fileName: $"image-{req.ImageId}{imageFormat.GetFileExtension()}",
             contentType: imageFormat.GetContentType(),
             lastModified: image.LastModified,

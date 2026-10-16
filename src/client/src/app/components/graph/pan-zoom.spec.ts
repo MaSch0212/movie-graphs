@@ -1,6 +1,6 @@
-import { PanZoomController, ViewTransform } from './pan-zoom';
+import { PanZoomConstraints, PanZoomController, ViewTransform } from './pan-zoom';
 
-function createController() {
+function createController(constraints?: PanZoomConstraints) {
   let time = 0;
   let frames: ((time: number) => void)[] = [];
   const changes: ViewTransform[] = [];
@@ -11,6 +11,7 @@ function createController() {
     now: () => time,
     requestFrame: callback => frames.push(callback),
     cancelFrame: () => (frames = []),
+    getConstraints: () => constraints,
   });
   return {
     controller,
@@ -154,5 +155,101 @@ describe('PanZoomController', () => {
     const { controller } = createController();
     controller.fit({ x: 0, y: 0, width: 1000, height: 500 }, { width: 520, height: 520 }, 10);
     expect(controller.transform).toEqual({ x: 10, y: 135, k: 0.5 });
+  });
+  it('keeps the tapped point fixed while animating a double tap zoom', () => {
+    const { controller, changes, advance, runFrames } = createController();
+    controller.setTransform({ x: -500, y: -300, k: 0.5 });
+    const tap = { x: 300, y: 200 };
+    const world = { x: (tap.x + 500) / 0.5, y: (tap.y + 300) / 0.5 };
+    controller.pointerDown(1, tap);
+    controller.pointerUp(1, tap);
+    advance(100);
+    controller.pointerDown(1, tap);
+    controller.pointerUp(1, tap);
+    changes.length = 0;
+    runFrames();
+    expect(changes.length).toBeGreaterThan(5);
+    for (const t of changes) {
+      expect(world.x * t.k + t.x).toBeCloseTo(tap.x);
+      expect(world.y * t.k + t.y).toBeCloseTo(tap.y);
+    }
+    expect(controller.transform.k).toBeCloseTo(1);
+  });
+
+  it('zooms with double tap and drag: up zooms in, down zooms out', () => {
+    const { controller, advance } = createController();
+    const tap = { x: 100, y: 100 };
+    controller.pointerDown(1, tap);
+    controller.pointerUp(1, tap);
+    advance(100);
+    controller.pointerDown(1, tap);
+    controller.pointerMove(1, { x: 100, y: 50 });
+    const zoomedIn = controller.transform;
+    expect(zoomedIn.k).toBeGreaterThan(1.5);
+    // The point where the second tap started stays in place.
+    expect((tap.x - zoomedIn.x) / zoomedIn.k).toBeCloseTo(100);
+    controller.pointerMove(1, { x: 100, y: 200 });
+    expect(controller.transform.k).toBeLessThan(1);
+    controller.pointerUp(1, { x: 100, y: 200 });
+    expect(controller.moved).toBe(true);
+    expect(controller.isAnimating).toBe(false);
+  });
+
+  it('adds resistance when dragging the content out of the viewport and bounces back', () => {
+    const constraints = {
+      bounds: { x: 0, y: 0, width: 100, height: 100 },
+      viewport: { width: 400, height: 400 },
+      margin: 50,
+    };
+    const { controller, advance, runFrames } = createController(constraints);
+    // Content may move right until only 50px of it are left: x <= 350.
+    controller.pointerDown(1, { x: 0, y: 0 });
+    advance(16);
+    controller.pointerMove(1, { x: 500, y: 0 });
+    expect(controller.transform.x).toBeGreaterThan(350);
+    expect(controller.transform.x).toBeLessThan(500);
+    advance(300);
+    controller.pointerUp(1);
+    runFrames();
+    expect(controller.transform.x).toBeCloseTo(350);
+  });
+
+  it('bounces back when momentum carries the content out of the viewport', () => {
+    const constraints = {
+      bounds: { x: 0, y: 0, width: 100, height: 100 },
+      viewport: { width: 400, height: 400 },
+      margin: 50,
+    };
+    const { controller, advance, runFrames } = createController(constraints);
+    controller.pointerDown(1, { x: 0, y: 0 });
+    for (let i = 1; i <= 5; i++) {
+      advance(16);
+      controller.pointerMove(1, { x: i * 40, y: 0 }); // 2.5 px/ms towards the right edge
+    }
+    controller.pointerUp(1);
+    runFrames();
+    expect(controller.transform.x).toBeCloseTo(350);
+    expect(controller.isAnimating).toBe(false);
+  });
+
+  it('keeps animation targets within the bounds', () => {
+    const { controller } = createController({
+      bounds: { x: 0, y: 0, width: 100, height: 100 },
+      viewport: { width: 400, height: 400 },
+      margin: 50,
+    });
+    controller.centerOn({ x: 5000, y: 50 }, { width: 400, height: 400 });
+    expect(controller.transform.x).toBe(-50);
+  });
+  it('recognizes the second press of a double tap', () => {
+    const { controller, advance } = createController();
+    expect(controller.isDoubleTapPress({ x: 10, y: 10 })).toBe(false);
+    controller.pointerDown(1, { x: 10, y: 10 });
+    controller.pointerUp(1, { x: 10, y: 10 });
+    advance(100);
+    expect(controller.isDoubleTapPress({ x: 15, y: 12 })).toBe(true);
+    expect(controller.isDoubleTapPress({ x: 200, y: 200 })).toBe(false);
+    advance(400);
+    expect(controller.isDoubleTapPress({ x: 15, y: 12 })).toBe(false);
   });
 });

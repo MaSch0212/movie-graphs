@@ -1,5 +1,5 @@
 @if (graph.error()) {
-  <div class="grid h-full place-items-center p-6">
+  <div class="grid min-h-dvh place-items-center p-6">
     <div class="glass max-w-sm rounded-3xl p-8 text-center">
       <span class="icon-[mdi--movie-off-outline] text-5xl text-danger"></span>
       <h1 class="mt-3 text-lg font-semibold">Couldn't load this graph</h1>
@@ -8,207 +8,196 @@
     </div>
   </div>
 } @else if (graph.isLoading() && !graph.value()) {
-  <div class="grid h-full place-items-center">
+  <div class="fixed inset-0 grid place-items-center">
     <div
       class="size-10 animate-spin rounded-full border-4 border-accent/20 border-t-accent"
       role="status"
       aria-label="Loading"></div>
   </div>
 } @else if (graph.value(); as graphValue) {
-  <svg
-    #graphSvg
-    class="absolute inset-0 size-full cursor-grab touch-none canvas-dots select-none active:cursor-grabbing"
-    [style.background-size]="dotStyle().size"
-    [style.background-position]="dotStyle().position"
+  <!--
+    The canvas covers the whole screen including the areas behind the browser's status and tool
+    bars (100lvh). It is transparent itself because Safari tints its bars based on the background
+    of fixed elements at the screen edges; the visible background lives in a child element.
+  -->
+  <div
+    #viewport
+    class="fixed top-0 left-0 h-lvh w-full cursor-grab touch-none select-none [-webkit-touch-callout:none] active:cursor-grabbing"
     aria-label="Watch order graph"
-    role="img">
-    <defs>
-      <marker
-        id="arrow"
-        viewBox="0 -5 10 10"
-        refX="9"
-        refY="0"
-        markerWidth="5"
-        markerHeight="5"
-        orient="auto">
-        <path d="M0,-5L10,0L0,5Z" class="fill-edge" />
-      </marker>
-      <clipPath id="poster-clip">
-        <rect width="90" height="135" rx="10" />
-      </clipPath>
-      <filter id="grayscale">
-        <feColorMatrix type="saturate" values="0" />
-      </filter>
-    </defs>
+    role="region">
+    <!-- Bleeds past the viewport edges so it is also drawn behind the browser bars. -->
+    <div #dots class="absolute -inset-x-16 -inset-y-64 canvas-dots" aria-hidden="true"></div>
 
-    <g [attr.transform]="viewTransform()">
-      @for (edge of layout().edges; track edge.id) {
-        <path
-          class="fill-none stroke-edge"
-          stroke-width="2.5"
-          stroke-linecap="round"
-          marker-end="url(#arrow)"
-          [attr.d]="edge.path" />
-      }
+    <div
+      #content
+      class="absolute top-0 left-0 origin-top-left"
+      [style.width.px]="layout().bounds.width"
+      [style.height.px]="layout().bounds.height">
+      <svg
+        class="absolute inset-0 overflow-visible"
+        [attr.width]="layout().bounds.width"
+        [attr.height]="layout().bounds.height"
+        aria-hidden="true">
+        <defs>
+          <marker
+            id="arrow"
+            viewBox="0 -5 10 10"
+            refX="9"
+            refY="0"
+            markerWidth="5"
+            markerHeight="5"
+            orient="auto">
+            <path d="M0,-5L10,0L0,5Z" class="fill-edge" />
+          </marker>
+        </defs>
+        @for (edge of layout().edges; track edge.id) {
+          <path
+            class="fill-none stroke-edge"
+            stroke-width="2.5"
+            stroke-linecap="round"
+            marker-end="url(#arrow)"
+            [attr.d]="edge.path" />
+        }
+      </svg>
 
       @for (node of layout().nodes; track node.id) {
-        <g
-          class="group cursor-pointer outline-none"
-          tabindex="0"
-          role="button"
+        <button
+          type="button"
+          class="group absolute cursor-pointer rounded-[10px] bg-surface-raised outline-none"
+          [style.left.px]="node.position.x"
+          [style.top.px]="node.position.y"
+          [style.width.px]="node.dimension.width"
+          [style.height.px]="node.dimension.height"
           [attr.aria-label]="node.label + ' (' + node.data.status + ')'"
-          [attr.transform]="'translate(' + node.position.x + ' ' + node.position.y + ')'"
           (click)="nodeDialog.open(node.data)"
-          (keydown.enter)="nodeDialog.open(node.data)"
-          (keydown.space)="$event.preventDefault(); nodeDialog.open(node.data)"
           (pointerenter)="$event.pointerType === 'mouse' && hoveredNode.set(node)"
           (pointerleave)="hoveredNode.set(undefined)">
-          <rect
-            class="fill-surface-raised"
-            [attr.width]="node.dimension.width"
-            [attr.height]="node.dimension.height"
-            rx="10" />
-          <image
-            clip-path="url(#poster-clip)"
-            class="transition-opacity duration-200"
-            [attr.width]="node.dimension.width"
-            [attr.height]="node.dimension.height"
-            [attr.href]="node.data.imageUrl"
-            preserveAspectRatio="xMidYMid slice"
-            [attr.opacity]="
-              node.data.status === 'ignored' ? 0.3 : node.data.status === 'watched' ? 0.55 : 1
-            "
-            [attr.filter]="node.data.status === 'ignored' ? 'url(#grayscale)' : null" />
-          <rect
-            class="fill-none stroke-accent opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
-            stroke-width="3"
-            x="-1.5"
-            y="-1.5"
-            [attr.width]="node.dimension.width + 3"
-            [attr.height]="node.dimension.height + 3"
-            rx="11.5" />
+          <img
+            class="pointer-events-none size-full rounded-[10px] object-cover [-webkit-user-drag:none]"
+            alt=""
+            loading="lazy"
+            decoding="async"
+            draggable="false"
+            [src]="thumbnailUrl(node.data.imageUrl)"
+            [class.opacity-55]="node.data.status === 'watched'"
+            [class.opacity-30]="node.data.status === 'ignored'"
+            [class.grayscale]="node.data.status === 'ignored'" />
+          <span
+            class="pointer-events-none absolute -inset-[3px] rounded-[13px] border-3 border-accent opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"></span>
 
           @switch (node.data.status) {
             @case ('watched') {
-              <g [attr.transform]="'translate(' + (node.dimension.width - 17) + ' 17)'">
-                <circle r="13" class="fill-watched stroke-surface-raised" stroke-width="2.5" />
-                <path
-                  transform="translate(-8.5 -8.5) scale(0.71)"
-                  class="fill-white"
-                  d="M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z" />
-              </g>
+              <span
+                class="absolute top-1 right-1 grid size-6.5 place-items-center rounded-full border-2 border-surface-raised bg-watched text-sm text-white">
+                <span class="icon-[mdi--check-bold]"></span>
+              </span>
             }
             @case ('watching') {
-              <g [attr.transform]="'translate(' + (node.dimension.width - 17) + ' 17)'">
-                <circle r="13" class="fill-watching stroke-surface-raised" stroke-width="2.5" />
-                <path
-                  transform="translate(-7.5 -8.5) scale(0.71)"
-                  class="fill-white"
-                  d="M8,5.14V19.14L19,12.14L8,5.14Z" />
-              </g>
+              <span
+                class="absolute top-1 right-1 grid size-6.5 place-items-center rounded-full border-2 border-surface-raised bg-watching text-sm text-white">
+                <span class="icon-[mdi--play]"></span>
+              </span>
             }
             @case ('ignored') {
-              <g [attr.transform]="'translate(' + (node.dimension.width - 17) + ' 17)'">
-                <circle r="13" class="fill-ignored stroke-surface-raised" stroke-width="2.5" />
-                <path
-                  transform="translate(-8.5 -8.5) scale(0.71)"
-                  class="fill-white"
-                  d="M19,13H5V11H19V13Z" />
-              </g>
+              <span
+                class="absolute top-1 right-1 grid size-6.5 place-items-center rounded-full border-2 border-surface-raised bg-ignored text-sm text-white">
+                <span class="icon-[mdi--minus]"></span>
+              </span>
             }
           }
-        </g>
-      }
-    </g>
-  </svg>
-
-  @if (tooltip(); as tooltip) {
-    <div
-      class="glass pointer-events-none absolute z-10 max-w-64 -translate-x-1/2 -translate-y-full rounded-xl px-3 py-2 text-sm"
-      [style.left.px]="tooltip.left"
-      [style.top.px]="tooltip.top - 8">
-      <div class="font-medium">{{ tooltip.node.name }}</div>
-      @if (tooltip.node.whereToWatch || tooltip.node.duration) {
-        <div class="mt-0.5 flex gap-2 text-xs text-muted">
-          @if (tooltip.node.whereToWatch) {
-            <span>{{ tooltip.node.whereToWatch }}</span>
-          }
-          @if (tooltip.node.duration) {
-            <span>{{ tooltip.node.duration.slice(0, 5) }} h</span>
-          }
-        </div>
+        </button>
       }
     </div>
-  }
+  </div>
 
-  <!-- Header -->
-  <header
-    class="glass absolute top-[max(0.75rem,env(safe-area-inset-top))] right-3 left-3 flex items-center gap-2 rounded-2xl p-2 sm:right-auto sm:max-w-[calc(100%-1.5rem)] sm:min-w-80">
-    <a routerLink="/" class="btn btn-ghost btn-icon shrink-0" aria-label="Back to start">
-      <span class="icon-[mdi--arrow-left]"></span>
-    </a>
-    <div class="min-w-0 grow">
-      <h1 class="truncate text-base leading-tight font-semibold">{{ graphName() }}</h1>
-      <div class="mt-1 flex items-center gap-2 text-xs text-muted">
-        <div class="h-1.5 w-20 overflow-hidden rounded-full bg-fg/10">
-          <div
-            class="h-full rounded-full bg-linear-to-r from-watched to-accent transition-[width] duration-500"
-            [style.width.%]="stats().percent"></div>
-        </div>
-        <span class="whitespace-nowrap tabular-nums">
-          {{ stats().watched }} / {{ stats().total }} watched
-        </span>
+  <!-- Controls, laid out within the part of the screen that is not covered by browser UI. -->
+  <div class="pointer-events-none fixed inset-x-0 top-0 h-dvh touch-none **:touch-none">
+    @if (tooltip(); as tooltip) {
+      <div
+        class="glass absolute z-10 max-w-64 -translate-x-1/2 -translate-y-full rounded-xl px-3 py-2 text-sm"
+        [style.left.px]="tooltip.left"
+        [style.top.px]="tooltip.top - 8">
+        <div class="font-medium">{{ tooltip.node.name }}</div>
+        @if (tooltip.node.whereToWatch || tooltip.node.duration) {
+          <div class="mt-0.5 flex gap-2 text-xs text-muted">
+            @if (tooltip.node.whereToWatch) {
+              <span>{{ tooltip.node.whereToWatch }}</span>
+            }
+            @if (tooltip.node.duration) {
+              <span>{{ tooltip.node.duration.slice(0, 5) }} h</span>
+            }
+          </div>
+        }
       </div>
-    </div>
-    <button
-      type="button"
-      class="btn btn-ghost btn-icon shrink-0"
-      [attr.aria-label]="linkCopied() ? 'Link copied' : 'Copy link'"
-      [title]="linkCopied() ? 'Link copied' : 'Copy link'"
-      (click)="copyUrl()">
-      <span
-        [class]="
-          linkCopied() ? 'icon-[mdi--check] text-watched' : 'icon-[mdi--link-variant]'
-        "></span>
-    </button>
-  </header>
+    }
 
-  <!-- Bottom controls -->
-  <div
-    class="pointer-events-none absolute right-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 flex items-end justify-between gap-3">
-    <button
-      type="button"
-      class="btn btn-primary pointer-events-auto h-12 rounded-2xl px-5 text-base"
-      (click)="nodeDialog.open()">
-      <span class="icon-[mdi--plus] text-xl"></span>
-      Add title
-    </button>
+    <header
+      class="glass pointer-events-auto absolute top-(--app-top) right-3 left-3 flex items-center gap-2 rounded-2xl p-2 sm:right-auto sm:max-w-[calc(100%-1.5rem)] sm:min-w-80">
+      <a routerLink="/" class="btn btn-ghost btn-icon shrink-0" aria-label="Back to start">
+        <span class="icon-[mdi--arrow-left]"></span>
+      </a>
+      <div class="min-w-0 grow">
+        <h1 class="truncate text-base leading-tight font-semibold">{{ graphName() }}</h1>
+        <div class="mt-1 flex items-center gap-2 text-xs text-muted">
+          <div class="h-1.5 w-20 overflow-hidden rounded-full bg-fg/10">
+            <div
+              class="h-full rounded-full bg-linear-to-r from-watched to-accent transition-[width] duration-500"
+              [style.width.%]="stats().percent"></div>
+          </div>
+          <span class="whitespace-nowrap tabular-nums">
+            {{ stats().watched }} / {{ stats().total }} watched
+          </span>
+        </div>
+      </div>
+      <button
+        type="button"
+        class="btn btn-ghost btn-icon shrink-0"
+        [attr.aria-label]="linkCopied() ? 'Link copied' : 'Copy link'"
+        [title]="linkCopied() ? 'Link copied' : 'Copy link'"
+        (click)="copyUrl()">
+        <span
+          [class]="
+            linkCopied() ? 'icon-[mdi--check] text-watched' : 'icon-[mdi--link-variant]'
+          "></span>
+      </button>
+    </header>
 
-    <div class="glass pointer-events-auto flex gap-1 rounded-2xl p-1.5">
+    <div
+      class="absolute right-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 flex items-end justify-between gap-3">
       <button
         type="button"
-        class="btn btn-ghost btn-icon"
-        aria-label="Zoom out"
-        title="Zoom out"
-        (click)="zoom(1 / zoomStep)">
-        <span class="icon-[mdi--minus]"></span>
+        class="btn btn-primary pointer-events-auto h-12 rounded-2xl px-5 text-base"
+        (click)="nodeDialog.open()">
+        <span class="icon-[mdi--plus] text-xl"></span>
+        Add title
       </button>
-      <button
-        type="button"
-        class="btn btn-ghost btn-icon"
-        aria-label="Zoom in"
-        title="Zoom in"
-        (click)="zoom(zoomStep)">
-        <span class="icon-[mdi--plus]"></span>
-      </button>
-      <button
-        type="button"
-        class="btn btn-ghost btn-icon"
-        aria-label="Show everything"
-        title="Show everything"
-        (click)="zoomToFit()">
-        <span class="icon-[mdi--fit-to-screen-outline]"></span>
-      </button>
+
+      <div class="glass pointer-events-auto flex gap-1 rounded-2xl p-1.5">
+        <button
+          type="button"
+          class="btn btn-ghost btn-icon"
+          aria-label="Zoom out"
+          title="Zoom out"
+          (click)="zoom(1 / zoomStep)">
+          <span class="icon-[mdi--minus]"></span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-icon"
+          aria-label="Zoom in"
+          title="Zoom in"
+          (click)="zoom(zoomStep)">
+          <span class="icon-[mdi--plus]"></span>
+        </button>
+        <button
+          type="button"
+          class="btn btn-ghost btn-icon"
+          aria-label="Reset view to the next title"
+          title="Reset view"
+          (click)="resetView()">
+          <span class="icon-[mdi--crosshairs-gps]"></span>
+        </button>
+      </div>
     </div>
   </div>
 
