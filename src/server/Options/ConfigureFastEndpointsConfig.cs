@@ -45,8 +45,11 @@ public class ConfigureFastEndpointsConfig(
                     }
                 }
 
-                x.ProducesProblemDetails()
-                    .Produces(200, c.ResDtoType == typeof(object) ? null : c.ResDtoType);
+                x.ProducesProblemDetails();
+                if (c.ResDtoType == typeof(object))
+                    x.Produces(204);
+                else
+                    x.Produces(200, c.ResDtoType);
             });
             c.Summary(x =>
             {

@@ -107,14 +107,14 @@ public class CreateGraphEdgeEndpoint(DatabaseContext databaseContext, IIdService
         await databaseContext.Edges.AddAsync(edge, ct);
         await databaseContext.SaveChangesAsync(ct);
 
-        await SendAsync(
+        await Send.OkAsync(
             new(
                 new(
                     idService.GraphNode.Encode(edge.SourceNodeId),
                     idService.GraphNode.Encode(edge.TargetNodeId)
                 )
             ),
-            cancellation: ct
+            ct
         );
     }
 }

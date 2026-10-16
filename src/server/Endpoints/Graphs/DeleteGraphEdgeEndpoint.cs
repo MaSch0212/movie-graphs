@@ -57,6 +57,6 @@ public class DeleteGraphEdgeEndpoint(DatabaseContext databaseContext, IIdService
 
         await edgeQuery.ExecuteDeleteAsync(ct);
 
-        await SendNoContentAsync(cancellation: ct);
+        await Send.NoContentAsync(ct);
     }
 }

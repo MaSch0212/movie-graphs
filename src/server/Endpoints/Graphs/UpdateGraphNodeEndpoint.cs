@@ -15,7 +15,9 @@ namespace MovieGraphs.Endpoints.Graphs;
 /// <param name="GraphNodeId">The id of the node to update.</param>
 /// <param name="Name">The new name of the node.</param>
 /// <param name="Image">The new image of the node.</param>
-/// <param name="Watched">Whether the node is watched.</param>
+/// <param name="Status">The new watch status of the node.</param>
+/// <param name="Duration">The new duration of the node.</param>
+/// <param name="WhereToWatch">The new place where the node can be watched.</param>
 public record UpdateGraphNodeRequest(
     [property: Required] string GraphNodeId,
     string? Name,
@@ -97,12 +99,13 @@ public class UpdateGraphNodeEndpoint(
         }
         if (req.Status is not null)
             node.Status = req.Status.Value;
-        if (Form.Keys.Contains("duration"))
-            node.Duration = req.Duration;
-        if (Form.Keys.Contains("whereToWatch"))
-            node.WhereToWatch = req.WhereToWatch;
+        // A field that is sent with an empty value clears it.
+        if (Form.TryGetValue("duration", out var duration))
+            node.Duration = string.IsNullOrWhiteSpace(duration) ? null : req.Duration;
+        if (Form.TryGetValue("whereToWatch", out var whereToWatch))
+            node.WhereToWatch = string.IsNullOrWhiteSpace(whereToWatch) ? null : req.WhereToWatch;
 
         await databaseContext.SaveChangesAsync(ct);
-        await SendAsync(new(graphMapper.ToGraphNodeExpression.Compile()(node)), cancellation: ct);
+        await Send.OkAsync(new(graphMapper.ToGraphNodeExpression.Compile()(node)), ct);
     }
 }

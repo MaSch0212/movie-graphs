@@ -53,6 +53,6 @@ public class GetGraphEndpoint(
             return;
         }
 
-        await SendAsync(new(graph), cancellation: ct);
+        await Send.OkAsync(new(graph), ct);
     }
 }

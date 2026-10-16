@@ -44,6 +44,6 @@ public class DeleteGraphEndpoint(DatabaseContext databaseContext, IIdService idS
 
         await graphQuery.ExecuteDeleteAsync(ct);
 
-        await SendNoContentAsync(cancellation: ct);
+        await Send.NoContentAsync(ct);
     }
 }

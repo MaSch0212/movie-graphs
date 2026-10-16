@@ -78,13 +78,13 @@ public class CreateGraphNodeEndpoint(DatabaseContext databaseContext, IIdService
         {
             GraphId = graphId,
             Name = req.Name,
-            Image = new ImageEntity { Name = req.Name, Data = imageData }
+            Image = new ImageEntity { Name = req.Name, Data = imageData },
         };
 
         await databaseContext.Nodes.AddAsync(node, ct);
         await databaseContext.SaveChangesAsync(ct);
 
-        await SendAsync(
+        await Send.OkAsync(
             new(
                 new(
                     idService.GraphNode.Encode(node.Id),
@@ -95,7 +95,7 @@ public class CreateGraphNodeEndpoint(DatabaseContext databaseContext, IIdService
                     node.WhereToWatch
                 )
             ),
-            cancellation: ct
+            ct
         );
     }
 }

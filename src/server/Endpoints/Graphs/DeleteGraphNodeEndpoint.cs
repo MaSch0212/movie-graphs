@@ -45,6 +45,6 @@ public class DeleteGraphNodeEndpoint(DatabaseContext databaseContext, IIdService
         await nodeQuery.ExecuteDeleteAsync(ct);
         await databaseContext.Images.Where(x => x.Id == nodeInfo.ImageId).ExecuteDeleteAsync(ct);
 
-        await SendNoContentAsync(cancellation: ct);
+        await Send.NoContentAsync(ct);
     }
 }

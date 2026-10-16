@@ -8,7 +8,7 @@ public enum GraphNodeStatus
     Unwatched,
     Watching,
     Watched,
-    Ignored
+    Ignored,
 }
 
 public class GraphNodeEntity

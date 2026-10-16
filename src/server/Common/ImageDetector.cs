@@ -8,7 +8,7 @@ public enum ImageFormat
     Gif,
     Png,
     Svg,
-    Tif
+    Tif,
 }
 
 // https://www.c-sharpcorner.com/blogs/auto-detecting-image-type-and-extension-from-byte-in-c-sharp
@@ -37,7 +37,7 @@ public static class ImageDetector
         (intel_tiff, ImageFormat.Tif),
         (motorola_tiff, ImageFormat.Tif),
         (svg_xml_small, ImageFormat.Svg),
-        (svg_xml_capital, ImageFormat.Svg)
+        (svg_xml_capital, ImageFormat.Svg),
     ];
 
     public static ImageFormat GetImageFormat(byte[] array)
@@ -82,7 +82,7 @@ public static class ImageDetector
             ImageFormat.Png => "image/png",
             ImageFormat.Svg => "image/svg+xml",
             ImageFormat.Tif => "image/tiff",
-            _ => "application/octet-stream"
+            _ => "application/octet-stream",
         };
     }
 
@@ -96,7 +96,7 @@ public static class ImageDetector
             ImageFormat.Png => ".png",
             ImageFormat.Svg => ".svg",
             ImageFormat.Tif => ".tif",
-            _ => ".bin"
+            _ => ".bin",
         };
     }
 

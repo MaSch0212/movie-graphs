@@ -39,9 +39,6 @@ public class CreateGraphEndpoint(DatabaseContext databaseContext, IIdService idS
         await databaseContext.Graphs.AddAsync(graph, ct);
         await databaseContext.SaveChangesAsync(ct);
 
-        await SendAsync(
-            new(new(idService.Graph.Encode(graph.Id), graph.Name, [], [])),
-            cancellation: ct
-        );
+        await Send.OkAsync(new(new(idService.Graph.Encode(graph.Id), graph.Name, [], [])), ct);
     }
 }

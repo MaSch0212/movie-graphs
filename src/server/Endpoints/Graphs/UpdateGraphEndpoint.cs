@@ -59,9 +59,9 @@ public class UpdateGraphEndpoint(
             updater.With(x => x.SetProperty(x => x.Name, req.Name));
         await updater.ExecuteAsync(ct);
 
-        await SendAsync(
+        await Send.OkAsync(
             new(await graphQuery.Select(graphMapper.ToGraphExpression).FirstAsync(ct)),
-            cancellation: ct
+            ct
         );
     }
 }

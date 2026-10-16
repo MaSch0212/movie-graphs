@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Query;
 
@@ -14,24 +13,26 @@ public static class DbUpdateBuilder
 
 public class DbUpdateBuilder<T>(IQueryable<T> query)
 {
-    private bool _hasSetPropertyCalls = false;
-    private Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> _expression = sett => sett;
+    private readonly List<Action<UpdateSettersBuilder<T>>> _setters = [];
 
-    public DbUpdateBuilder<T> With(
-        Expression<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>> setter
-    )
+    public DbUpdateBuilder<T> With(Action<UpdateSettersBuilder<T>> setter)
     {
-        var call = (MethodCallExpression)setter.Body;
-        _expression = Expression.Lambda<Func<SetPropertyCalls<T>, SetPropertyCalls<T>>>(
-            Expression.Call(_expression.Body, call.Method, call.Arguments),
-            _expression.Parameters
-        );
-        _hasSetPropertyCalls = true;
+        _setters.Add(setter);
         return this;
     }
 
     public async Task<int> ExecuteAsync(CancellationToken cancellation = default)
     {
-        return _hasSetPropertyCalls ? await query.ExecuteUpdateAsync(_expression, cancellation) : 0;
+        if (_setters.Count == 0)
+            return 0;
+
+        return await query.ExecuteUpdateAsync(
+            builder =>
+            {
+                foreach (var setter in _setters)
+                    setter(builder);
+            },
+            cancellation
+        );
     }
 }

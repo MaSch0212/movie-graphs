@@ -31,13 +31,10 @@ builder.Services.AddDbContext<DatabaseContext>();
 builder.Services.AddHttpClient();
 
 builder.Services.AddHealthChecks().AddDbContextCheck<DatabaseContext>();
-builder.Services.AddFastEndpoints(o =>
-{
-    IEnumerable<Type> endpointTypes = MovieGraphs.DiscoveredTypes.All;
-    if (Environment.GetEnvironmentVariable("ENABLE_DEV_ENDPOINTS") != "true")
-        endpointTypes = endpointTypes.Where(x => !x.FullName!.Contains(".Dev."));
-    o.SourceGeneratorDiscoveredTypes.AddRange(endpointTypes);
-});
+IEnumerable<Type> endpointTypes = MovieGraphs.DiscoveredTypes.All;
+if (Environment.GetEnvironmentVariable("ENABLE_DEV_ENDPOINTS") != "true")
+    endpointTypes = endpointTypes.Where(x => !x.FullName!.Contains(".Dev."));
+builder.Services.AddFastEndpoints([.. endpointTypes]);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.SwaggerDocument(c =>
 {

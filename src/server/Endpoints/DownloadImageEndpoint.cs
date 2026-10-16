@@ -45,7 +45,7 @@ public class DownloadImageEndpoint(DatabaseContext databaseContext, IIdService i
         }
 
         var imageFormat = ImageDetector.GetImageFormat(image.Data);
-        await SendBytesAsync(
+        await Send.BytesAsync(
             image.Data,
             fileName: $"image-{req.ImageId}{imageFormat.GetFileExtension()}",
             contentType: imageFormat.GetContentType(),
