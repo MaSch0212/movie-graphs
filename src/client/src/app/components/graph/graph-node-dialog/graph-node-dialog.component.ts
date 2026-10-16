@@ -140,6 +140,10 @@ export class GraphNodeDialogComponent {
             body: {
               name: value.name,
               image: value.imageFile as File,
+              status: value.status,
+              duration:
+                value.durationMinutes !== null ? toTimeSpan(value.durationMinutes) : undefined,
+              whereToWatch: value.whereToWatch.trim() || undefined,
             },
           });
 

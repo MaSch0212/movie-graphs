@@ -18,7 +18,7 @@ import {
   template: `
     <dialog
       #dialog
-      class="glass m-auto w-[min(28rem,calc(100vw-2rem))] max-w-none overflow-visible rounded-3xl bg-surface-raised p-0 text-fg opacity-100 transition-all transition-discrete duration-200 ease-out backdrop:bg-black/40 backdrop:backdrop-blur-sm backdrop:transition-all backdrop:transition-discrete backdrop:duration-200 max-sm:mb-0 max-sm:w-full max-sm:rounded-b-none max-sm:pb-[env(safe-area-inset-bottom)] starting:open:translate-y-4 starting:open:opacity-0 starting:open:backdrop:bg-transparent max-sm:starting:open:translate-y-full"
+      class="glass m-auto w-[min(32rem,calc(100vw-2rem))] max-w-none overflow-visible rounded-3xl bg-surface-raised p-0 text-fg opacity-100 transition-all transition-discrete duration-200 ease-out backdrop:bg-black/40 backdrop:backdrop-blur-sm backdrop:transition-all backdrop:transition-discrete backdrop:duration-200 max-sm:mb-0 max-sm:w-full max-sm:rounded-b-none max-sm:pb-[env(safe-area-inset-bottom)] starting:open:translate-y-4 starting:open:opacity-0 starting:open:backdrop:bg-transparent max-sm:starting:open:translate-y-full"
       [attr.aria-label]="title()"
       (close)="open.set(false)"
       (click)="onDialogClick($event)">

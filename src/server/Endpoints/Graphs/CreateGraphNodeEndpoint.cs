@@ -13,10 +13,16 @@ namespace MovieGraphs.Endpoints.Graphs;
 /// <param name="GraphId">The id of the graph to add the node to.</param>
 /// <param name="Name">The name of the node.</param>
 /// <param name="Image">The image of the node.</param>
+/// <param name="Status">The watch status of the node (defaults to unwatched).</param>
+/// <param name="Duration">The duration of the node.</param>
+/// <param name="WhereToWatch">Where the node can be watched.</param>
 public record CreateGraphNodeRequest(
     [property: Required] string GraphId,
     [property: Required] string Name,
-    [property: Required] IFormFile Image
+    [property: Required] IFormFile Image,
+    GraphNodeStatus? Status,
+    TimeSpan? Duration,
+    string? WhereToWatch
 );
 
 /// <param name="Node">The created node.</param>
@@ -79,6 +85,9 @@ public class CreateGraphNodeEndpoint(DatabaseContext databaseContext, IIdService
             GraphId = graphId,
             Name = req.Name,
             Image = new ImageEntity { Name = req.Name, Data = imageData },
+            Status = req.Status ?? GraphNodeStatus.Unwatched,
+            Duration = req.Duration,
+            WhereToWatch = string.IsNullOrWhiteSpace(req.WhereToWatch) ? null : req.WhereToWatch,
         };
 
         await databaseContext.Nodes.AddAsync(node, ct);
