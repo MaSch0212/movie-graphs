@@ -11,6 +11,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 
 import { ApiGraph, ApiGraphEdge, ApiGraphNode, ApiGraphNodeStatus } from '../../../api/models';
 import { GraphsService } from '../../../api/services';
+import { I18nService } from '../../../i18n/i18n.service';
 import { imageFileValidator } from '../../../utils/image-file-validator';
 import { Logger } from '../../../utils/logger';
 import { fromTimeSpan, toTimeSpan } from '../../../utils/time-span';
@@ -33,6 +34,7 @@ export type NodeChangeEvent = {
 export class GraphNodeDialogComponent {
   private readonly _graphsService = inject(GraphsService);
   private readonly _confirmService = inject(ConfirmService);
+  protected readonly i18n = inject(I18nService);
 
   public readonly graph = input.required<ApiGraph>();
 
@@ -69,11 +71,11 @@ export class GraphNodeDialogComponent {
       .nodes.filter(node => node.id !== this.nodeToUpdate()?.id)
       .sort((a, b) => a.name.localeCompare(b.name))
   );
-  protected readonly statusOptions: { value: ApiGraphNodeStatus; label: string; icon: string }[] = [
-    { value: 'unwatched', label: 'To watch', icon: 'icon-[mdi--bookmark-outline]' },
-    { value: 'watching', label: 'Watching', icon: 'icon-[mdi--play]' },
-    { value: 'watched', label: 'Watched', icon: 'icon-[mdi--check]' },
-    { value: 'ignored', label: 'Skip', icon: 'icon-[mdi--eye-off-outline]' },
+  protected readonly statusOptions: { value: ApiGraphNodeStatus; icon: string }[] = [
+    { value: 'unwatched', icon: 'icon-[mdi--bookmark-outline]' },
+    { value: 'watching', icon: 'icon-[mdi--play]' },
+    { value: 'watched', icon: 'icon-[mdi--check]' },
+    { value: 'ignored', icon: 'icon-[mdi--eye-off-outline]' },
   ];
   protected readonly nodeLabel = (node: ApiGraphNode) => node.name;
   protected readonly nodeKey = (node: ApiGraphNode) => node.id;
@@ -175,9 +177,9 @@ export class GraphNodeDialogComponent {
     }
 
     const confirmed = await this._confirmService.confirm({
-      title: 'Delete title?',
-      message: `"${nodeToDelete.name}" and all of its connections will be removed from the graph.`,
-      confirmLabel: 'Delete',
+      title: this.i18n.t().node.deleteConfirmTitle,
+      message: this.i18n.t().node.deleteConfirmMessage(nodeToDelete.name),
+      confirmLabel: this.i18n.t().common.delete,
       destructive: true,
     });
     if (!confirmed) return;

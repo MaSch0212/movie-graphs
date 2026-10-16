@@ -3,11 +3,13 @@ import { Router, RouterLink } from '@angular/router';
 
 import { GraphsService } from '../../api/services';
 import { environment } from '../../environments/environment';
+import { I18nService } from '../../i18n/i18n.service';
 import { forgetRecentGraph, getRecentGraphs } from '../../utils/recent-graphs';
+import { LanguageSwitcherComponent } from '../ui/language-switcher/language-switcher.component';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink],
+  imports: [LanguageSwitcherComponent, RouterLink],
   templateUrl: './home.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block min-h-full' },
@@ -16,6 +18,7 @@ export class HomeComponent {
   private readonly _router = inject(Router);
   private readonly _graphsService = inject(GraphsService);
 
+  protected readonly i18n = inject(I18nService);
   protected readonly version = environment.version;
   protected readonly recentGraphs = signal(getRecentGraphs());
   protected readonly isCreating = signal(false);

@@ -1,17 +1,22 @@
+@let t = i18n.t();
 <div class="flex min-h-dvh items-center justify-center canvas-dots bg-size-[28px_28px] p-4">
   <main class="w-full max-w-md">
     <div class="mb-8 flex flex-col items-center text-center">
-      <div
-        class="grid size-16 place-items-center rounded-2xl bg-linear-to-br from-accent to-accent-strong text-3xl text-accent-fg shadow-lg shadow-accent/30">
-        <span class="icon-[mdi--movie-open-outline]"></span>
-      </div>
-      <h1 class="mt-4 text-3xl font-bold tracking-tight">MovieGraphs</h1>
-      <p class="mt-1 text-muted">Plan what to watch next — in the right order.</p>
+      <!-- Same artwork as the home screen icon; the corners are rounded like on iOS. -->
+      <img
+        src="app-icon.svg"
+        alt=""
+        width="80"
+        height="80"
+        class="size-20 rounded-[22.5%] shadow-lg shadow-accent/30"
+        draggable="false" />
+      <h1 class="mt-4 text-3xl font-bold tracking-tight">{{ t.common.appName }}</h1>
+      <p class="mt-1 text-muted">{{ t.home.tagline }}</p>
     </div>
 
     <div class="glass flex flex-col gap-6 rounded-3xl p-6">
       <form (submit)="$event.preventDefault(); openGraph(graphIdInput.value)">
-        <label for="graphId" class="field-label">Open a graph</label>
+        <label for="graphId" class="field-label">{{ t.home.openGraph }}</label>
         <div class="flex gap-2">
           <input
             #graphIdInput
@@ -19,8 +24,11 @@
             type="text"
             class="input"
             autocomplete="off"
-            placeholder="Graph ID or link" />
-          <button type="submit" class="btn btn-secondary h-11 shrink-0" aria-label="Open graph">
+            [placeholder]="t.home.graphIdPlaceholder" />
+          <button
+            type="submit"
+            class="btn btn-secondary h-11 shrink-0"
+            [attr.aria-label]="t.home.openGraphButton">
             <span class="icon-[mdi--arrow-right] text-lg"></span>
           </button>
         </div>
@@ -28,12 +36,12 @@
 
       <div class="flex items-center gap-3 text-xs text-muted uppercase">
         <div class="h-px grow bg-line"></div>
-        or
+        {{ t.home.or }}
         <div class="h-px grow bg-line"></div>
       </div>
 
       <form (submit)="$event.preventDefault(); newGraph(graphNameInput.value)">
-        <label for="graphName" class="field-label">Start a new graph</label>
+        <label for="graphName" class="field-label">{{ t.home.newGraph }}</label>
         <div class="flex gap-2">
           <input
             #graphNameInput
@@ -41,15 +49,15 @@
             type="text"
             class="input"
             autocomplete="off"
-            placeholder="e.g. Marvel Cinematic Universe" />
+            [placeholder]="t.home.newGraphPlaceholder" />
           <button type="submit" class="btn btn-primary h-11 shrink-0" [disabled]="isCreating()">
-            Create
+            {{ t.home.create }}
           </button>
         </div>
         @if (createFailed()) {
           <p class="field-error" role="alert">
             <span class="icon-[mdi--alert-circle]"></span>
-            Creating the graph failed. Please try again.
+            {{ t.home.createFailed }}
           </p>
         }
       </form>
@@ -57,7 +65,7 @@
 
     @if (recentGraphs().length > 0) {
       <section class="mt-6">
-        <h2 class="field-label px-2">Recently opened</h2>
+        <h2 class="field-label px-2">{{ t.home.recentlyOpened }}</h2>
         <ul class="glass divide-y divide-line overflow-hidden rounded-2xl">
           @for (recent of recentGraphs(); track recent.id) {
             <li class="group flex items-center">
@@ -73,7 +81,7 @@
               <button
                 type="button"
                 class="btn btn-ghost btn-icon mr-2 size-8 shrink-0 text-base text-muted opacity-60 group-hover:opacity-100"
-                [attr.aria-label]="'Remove ' + recent.name + ' from recent graphs'"
+                [attr.aria-label]="t.home.removeRecent(recent.name)"
                 (click)="forget(recent.id)">
                 <span class="icon-[mdi--close]"></span>
               </button>
@@ -83,6 +91,9 @@
       </section>
     }
 
-    <p class="mt-8 text-center text-xs text-muted/60">{{ version }}</p>
+    <div class="mt-8 flex flex-col items-center gap-3">
+      <app-language-switcher placement="above" align="center" />
+      <p class="text-center text-xs text-muted/60">{{ version }}</p>
+    </div>
   </main>
 </div>

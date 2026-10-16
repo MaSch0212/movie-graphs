@@ -1,4 +1,5 @@
-<app-dialog [(open)]="visible" [title]="nodeToUpdate() ? 'Edit title' : 'Add title'">
+@let t = i18n.t();
+<app-dialog [(open)]="visible" [title]="nodeToUpdate() ? t.node.editTitle : t.node.addTitle">
   <form
     id="node-form"
     class="flex flex-col gap-5 pt-1 pb-3"
@@ -9,23 +10,23 @@
         class="flex items-center gap-2 rounded-xl bg-danger/10 px-3.5 py-3 text-sm text-danger"
         role="alert">
         <span class="icon-[mdi--alert-circle-outline] shrink-0 text-lg"></span>
-        Saving failed. Please try again later.
+        {{ t.node.saveFailed }}
       </div>
     }
 
     <div>
-      <label for="nodeName" class="field-label">Title</label>
+      <label for="nodeName" class="field-label">{{ t.node.title }}</label>
       <input
         id="nodeName"
         type="text"
         class="input"
         formControlName="name"
         autocomplete="off"
-        placeholder="e.g. Iron Man (2008)" />
+        [placeholder]="t.node.titlePlaceholder" />
       @if (showError('name')) {
         <p class="field-error">
           <span class="icon-[mdi--alert-circle]"></span>
-          A title is required
+          {{ t.node.titleRequired }}
         </p>
       }
     </div>
@@ -50,27 +51,27 @@
           <img [src]="imageSource" alt="Poster" class="absolute inset-0 size-full object-cover" />
           <span
             class="absolute inset-x-0 bottom-0 bg-black/55 py-1 text-center text-xs text-white backdrop-blur-sm">
-            Change
+            {{ t.node.posterChange }}
           </span>
         } @else {
           <span
             class="absolute inset-0 flex flex-col items-center justify-center gap-1 p-2 text-center text-xs text-muted">
             <span class="icon-[mdi--image-plus-outline] text-3xl"></span>
-            Poster
+            {{ t.node.poster }}
           </span>
         }
         <input
           type="file"
           accept="image/*"
           class="sr-only"
-          aria-label="Poster image"
+          [attr.aria-label]="t.node.posterLabel"
           (change)="onImageFileChange($event)" />
       </label>
 
       <div class="flex min-w-0 grow flex-col justify-center gap-4">
         <div class="flex flex-col gap-4">
           <div>
-            <label for="duration" class="field-label">Runtime</label>
+            <label for="duration" class="field-label">{{ t.node.runtime }}</label>
             <div class="relative w-28">
               <input
                 id="duration"
@@ -82,12 +83,12 @@
                 placeholder="—" />
               <span
                 class="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-sm text-muted">
-                min
+                {{ t.node.minutes }}
               </span>
             </div>
           </div>
           <div>
-            <label for="whereToWatch" class="field-label">Where</label>
+            <label for="whereToWatch" class="field-label">{{ t.node.whereToWatch }}</label>
             <input
               id="whereToWatch"
               type="text"
@@ -109,34 +110,40 @@
     @if (showError('imageFile')) {
       <p class="field-error -mt-3">
         <span class="icon-[mdi--alert-circle]"></span>
-        @if (form.controls.imageFile.errors?.['imageFile']; as message) {
-          {{ message }}
-        } @else {
-          A poster image is required
+        @switch (form.controls.imageFile.errors?.['imageFile']) {
+          @case ('notAnImage') {
+            {{ t.node.posterNotAnImage }}
+          }
+          @case ('tooLarge') {
+            {{ t.node.posterTooLarge }}
+          }
+          @default {
+            {{ t.node.posterRequired }}
+          }
         }
       </p>
     }
 
     <fieldset>
-      <legend class="field-label">Status</legend>
+      <legend class="field-label">{{ t.node.status }}</legend>
       <div class="grid grid-cols-4 gap-1 rounded-xl bg-fg/6 p-1">
         @for (option of statusOptions; track option.value) {
           <label
             class="flex cursor-pointer flex-col items-center gap-0.5 rounded-lg px-1 py-2 text-xs font-medium text-muted transition has-checked:bg-surface-raised has-checked:text-fg has-checked:shadow-sm has-focus-visible:ring-2 has-focus-visible:ring-accent">
             <input type="radio" class="sr-only" formControlName="status" [value]="option.value" />
             <span class="text-lg" [class]="option.icon"></span>
-            {{ option.label }}
+            {{ t.status[option.value] }}
           </label>
         }
       </div>
     </fieldset>
 
     <div>
-      <label for="dependsOn" class="field-label">Watch after</label>
+      <label for="dependsOn" class="field-label">{{ t.node.watchAfter }}</label>
       <app-multi-select
         inputId="dependsOn"
         formControlName="dependsOn"
-        placeholder="Search titles…"
+        [placeholder]="t.node.searchTitles"
         [options]="otherNodes()"
         [optionLabel]="nodeLabel"
         [optionKey]="nodeKey" />
@@ -151,19 +158,19 @@
         [disabled]="isLoading()"
         (click)="delete()">
         <span class="icon-[mdi--delete-outline] text-lg"></span>
-        Delete
+        {{ t.common.delete }}
       </button>
     }
     <div class="grow"></div>
     <button type="button" class="btn btn-ghost" [disabled]="isLoading()" (click)="close()">
-      Cancel
+      {{ t.common.cancel }}
     </button>
     <button type="submit" form="node-form" class="btn btn-primary" [disabled]="isLoading()">
       @if (isLoading()) {
         <span
           class="size-4 animate-spin rounded-full border-2 border-accent-fg/30 border-t-accent-fg"></span>
       }
-      Save
+      {{ t.common.save }}
     </button>
   </ng-container>
 </app-dialog>

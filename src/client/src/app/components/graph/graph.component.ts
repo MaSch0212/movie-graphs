@@ -17,7 +17,13 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { produce } from 'immer';
 
 import { GraphsService } from '../../api/services';
+import { I18nService } from '../../i18n/i18n.service';
 import { rememberRecentGraph } from '../../utils/recent-graphs';
+import {
+  currentLanguageName,
+  LanguageOptionsComponent,
+} from '../ui/language-switcher/language-options.component';
+import { MenuComponent } from '../ui/menu/menu.component';
 import { computeGraphLayout, EMPTY_LAYOUT, GraphLayout, LayoutNode } from './graph-layout';
 import {
   GraphNodeDialogComponent,
@@ -28,7 +34,6 @@ import { bindPanZoom, PanZoomController, Size, ViewTransform } from './pan-zoom'
 const MIN_ZOOM = 0.03;
 const MAX_ZOOM = 4;
 const FIT_PADDING = 32;
-const ZOOM_STEP = 1.5;
 /** The scale the view starts with (and is reset to), around the title to watch next. */
 const READABLE_ZOOM = 0.6;
 const DOT_SPACING = 28;
@@ -45,7 +50,7 @@ const EDGE_TO_EDGE_SCROLL_OFFSET = 62;
 
 @Component({
   selector: 'app-graph',
-  imports: [GraphNodeDialogComponent, RouterLink],
+  imports: [GraphNodeDialogComponent, LanguageOptionsComponent, MenuComponent, RouterLink],
   templateUrl: './graph.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block' },
@@ -53,6 +58,7 @@ const EDGE_TO_EDGE_SCROLL_OFFSET = 62;
 export class GraphComponent {
   private readonly _graphsService = inject(GraphsService);
   private readonly _document = inject(DOCUMENT);
+  protected readonly i18n = inject(I18nService);
   private readonly _routeParams = toSignal(inject(ActivatedRoute).params);
 
   private readonly _viewport = viewChild<ElementRef<HTMLElement>>('viewport');
@@ -94,7 +100,9 @@ export class GraphComponent {
   protected readonly layout = signal<GraphLayout>(EMPTY_LAYOUT);
   protected readonly hoveredNode = signal<LayoutNode | undefined>(undefined);
   protected readonly linkCopied = signal(false);
-  protected readonly zoomStep = ZOOM_STEP;
+  /** Whether the "More" menu shows the language choices instead of its main items. */
+  protected readonly languageMenuShown = signal(false);
+  protected readonly currentLanguageName = computed(() => currentLanguageName(this.i18n));
 
   protected readonly stats = computed(() => {
     const nodes = this.graph.value()?.graph.nodes ?? [];
@@ -191,13 +199,6 @@ export class GraphComponent {
     }
   }
 
-  protected zoom(factor: number) {
-    const viewport = this._viewport()?.nativeElement;
-    if (!viewport) return;
-    const { width, height } = this.visibleViewport(viewport);
-    this._panZoom.zoomAt(factor, { x: width / 2, y: height / 2 }, true);
-  }
-
   protected onNodeChange(event: NodeChangeEvent) {
     const graph = this.graph.value();
     if (!graph) return;
@@ -232,7 +233,12 @@ export class GraphComponent {
   }
 
   protected async copyUrl() {
-    await navigator.clipboard.writeText(window.location.href);
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+    } catch {
+      // The clipboard is only available in secure contexts (HTTPS) and may be denied.
+      return;
+    }
     this.linkCopied.set(true);
     setTimeout(() => this.linkCopied.set(false), 1500);
   }

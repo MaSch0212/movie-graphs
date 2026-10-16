@@ -39,7 +39,8 @@
   --watched: oklch(0.68 0.16 160);
   --watching: oklch(0.68 0.15 235);
   --ignored: oklch(0.62 0.01 270);
-  --edge: oklch(0.58 0.2 277 / 0.55);
+  /* Opaque, so arrow heads and crossing lines don't show darker overlaps. */
+  --edge: color-mix(in oklch, var(--accent) 60%, var(--canvas));
   --shadow: 0 10px 30px -12px oklch(0.3 0.05 270 / 0.25);
 }
 
@@ -59,7 +60,6 @@
     --watched: oklch(0.74 0.15 160);
     --watching: oklch(0.74 0.13 235);
     --ignored: oklch(0.6 0.01 270);
-    --edge: oklch(0.72 0.14 277 / 0.5);
     --shadow: 0 16px 40px -16px oklch(0 0 0 / 0.7);
   }
 }
@@ -122,6 +122,16 @@
   }
   .btn-icon {
     @apply size-10 rounded-full p-0 text-xl;
+  }
+
+  .menu-item {
+    @apply flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm whitespace-nowrap outline-none hover:bg-fg/8 focus-visible:bg-fg/8 [&>[class*='icon-']]:shrink-0 [&>[class*='icon-']]:text-base;
+  }
+  .menu-label {
+    @apply px-3 pt-2 pb-1 text-xs font-medium tracking-wide text-muted uppercase;
+  }
+  .menu-separator {
+    @apply mx-2 my-1.5 h-px bg-line;
   }
 
   .field-label {

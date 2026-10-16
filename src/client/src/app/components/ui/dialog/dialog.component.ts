@@ -3,10 +3,13 @@ import {
   Component,
   effect,
   ElementRef,
+  inject,
   input,
   model,
   viewChild,
 } from '@angular/core';
+
+import { I18nService } from '../../../i18n/i18n.service';
 
 /**
  * A modal dialog based on the native `<dialog>` element. It is centered on larger screens and
@@ -28,7 +31,7 @@ import {
           <button
             type="button"
             class="btn btn-ghost btn-icon -mr-2 size-9 text-lg text-muted"
-            aria-label="Close"
+            [attr.aria-label]="i18n.t().common.close"
             (click)="open.set(false)">
             <span class="icon-[mdi--close]"></span>
           </button>
@@ -46,6 +49,8 @@ import {
 })
 export class DialogComponent {
   private readonly _dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
+
+  protected readonly i18n = inject(I18nService);
 
   public readonly open = model(false);
   public readonly title = input('');
