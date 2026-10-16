@@ -1,0 +1,141 @@
+@let t = translate.translations;
+<app-dialog [(open)]="visible" [title]="t.exportImage_title()">
+  <div class="flex flex-col gap-5 pt-1 pb-3">
+    @if (hasFailed()) {
+      <div
+        class="flex items-center gap-2 rounded-xl bg-danger/10 px-3.5 py-3 text-sm text-danger"
+        role="alert">
+        <span class="icon-[mdi--alert-circle-outline] shrink-0 text-lg"></span>
+        {{ t.exportImage_failed() }}
+      </div>
+    }
+
+    <div>
+      <div class="field-label">{{ t.exportImage_preview() }}</div>
+      <div
+        class="grid h-40 place-items-center overflow-hidden rounded-xl border border-line bg-fg/4 p-2"
+        [class.checkerboard]="background() === 'transparent'">
+        @if (previewUrl(); as previewUrl) {
+          <img class="max-h-full max-w-full object-contain" alt="" [src]="previewUrl" />
+        } @else {
+          <span class="flex items-center gap-2 text-sm text-muted" role="status">
+            <span
+              class="size-4 animate-spin rounded-full border-2 border-accent/20 border-t-accent"></span>
+            {{ t.exportImage_loadingPosters() }}
+          </span>
+        }
+      </div>
+      <p class="mt-1.5 flex justify-end gap-1.5 text-xs text-muted tabular-nums">
+        @if (isResolutionLimited()) {
+          <span class="icon-[mdi--information-outline] shrink-0 text-sm"></span>
+          <span class="text-right">{{ t.exportImage_resolutionLimited() }}</span>
+        }
+        <span class="shrink-0">{{ t.exportImage_size(imageSize()) }}</span>
+      </p>
+    </div>
+
+    <fieldset>
+      <legend class="field-label">{{ t.exportImage_format() }}</legend>
+      <div class="grid grid-cols-3 gap-1 rounded-xl bg-fg/6 p-1">
+        @for (option of formats; track option) {
+          <label class="segment">
+            <input
+              type="radio"
+              name="format"
+              class="sr-only"
+              [checked]="format() === option"
+              (change)="setFormat(option)" />
+            {{ option.toUpperCase() }}
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    <!-- SVGs scale freely, raster images need a resolution. -->
+    @if (format() !== 'svg') {
+      <fieldset>
+        <legend class="field-label">{{ t.exportImage_resolution() }}</legend>
+        <div class="grid grid-cols-3 gap-1 rounded-xl bg-fg/6 p-1">
+          @for (option of resolutions; track option) {
+            <label class="segment">
+              <input
+                type="radio"
+                name="resolution"
+                class="sr-only"
+                [checked]="resolution() === option"
+                (change)="resolution.set(option)" />
+              {{ option }}×
+            </label>
+          }
+        </div>
+      </fieldset>
+    }
+
+    <fieldset>
+      <legend class="field-label">{{ t.exportImage_background() }}</legend>
+      <div class="grid grid-cols-3 gap-1 rounded-xl bg-fg/6 p-1">
+        @for (option of backgrounds; track option) {
+          @let unsupported = option === 'transparent' && format() === 'jpeg';
+          <label
+            class="segment"
+            [class.opacity-40]="unsupported"
+            [class.pointer-events-none]="unsupported"
+            [title]="unsupported ? t.exportImage_noTransparencyInJpeg() : ''">
+            <input
+              type="radio"
+              name="background"
+              class="sr-only"
+              [checked]="background() === option"
+              [disabled]="unsupported"
+              (change)="background.set(option)" />
+            <span class="text-lg" [class]="backgroundIcons[option]"></span>
+            {{ t[`exportImage_${option}`]() }}
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    <div class="flex flex-col gap-1">
+      <label class="flex cursor-pointer items-center justify-between gap-3 py-1.5">
+        <span class="text-sm">{{ t.exportImage_dots() }}</span>
+        <input
+          type="checkbox"
+          class="switch"
+          [checked]="dots()"
+          (change)="dots.set($any($event.target).checked)" />
+      </label>
+      <label class="flex cursor-pointer items-center justify-between gap-3 py-1.5">
+        <span class="text-sm">{{ t.exportImage_showStatus() }}</span>
+        <input
+          type="checkbox"
+          class="switch"
+          [checked]="showStatus()"
+          (change)="showStatus.set($any($event.target).checked)" />
+      </label>
+    </div>
+  </div>
+
+  <ng-container dialogFooter>
+    <div class="grow"></div>
+    <button
+      type="button"
+      class="btn btn-ghost"
+      [disabled]="isExporting()"
+      (click)="visible.set(false)">
+      {{ t.common_cancel() }}
+    </button>
+    <button
+      type="button"
+      class="btn btn-primary"
+      [disabled]="isExporting() || isLoadingPosters()"
+      (click)="download()">
+      @if (isExporting()) {
+        <span
+          class="size-4 animate-spin rounded-full border-2 border-accent-fg/30 border-t-accent-fg"></span>
+      } @else {
+        <span class="icon-[mdi--download] text-lg"></span>
+      }
+      {{ t.exportImage_download() }}
+    </button>
+  </ng-container>
+</app-dialog>

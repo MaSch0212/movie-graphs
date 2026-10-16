@@ -38,6 +38,7 @@
     "resetViewLabel": "Ansicht auf den nächsten Titel zurücksetzen",
     "hours": "Std.",
     "copyGraph": "Graph kopieren",
+    "downloadImage": "Als Bild herunterladen",
     "deleteGraph": "Graph löschen",
     "deleteConfirmTitle": "Graph löschen?",
     "deleteConfirmMessage": "„{{ name }}“ und alle Titel darin werden für alle mit dem Link gelöscht. Das kann nicht rückgängig gemacht werden.",
@@ -55,6 +56,24 @@
     "resetProgressHint": "Alle Titel starten als „Offen“.",
     "copy": "Kopieren",
     "failed": "Der Graph konnte nicht kopiert werden. Bitte versuche es erneut."
+  },
+  "exportImage": {
+    "title": "Als Bild herunterladen",
+    "format": "Format",
+    "resolution": "Auflösung",
+    "background": "Hintergrund",
+    "light": "Hell",
+    "dark": "Dunkel",
+    "transparent": "Transparent",
+    "noTransparencyInJpeg": "JPEG-Bilder können nicht transparent sein.",
+    "dots": "Gepunkteter Hintergrund",
+    "showStatus": "Status anzeigen",
+    "preview": "Vorschau",
+    "loadingPosters": "Poster werden geladen…",
+    "size": "{{ width }} × {{ height }} px",
+    "resolutionLimited": "Verkleinert auf das größte Bild, das dieser Browser erstellen kann.",
+    "download": "Herunterladen",
+    "failed": "Das Bild konnte nicht erstellt werden. Bitte versuche es erneut."
   },
   "status": {
     "unwatched": "Offen",

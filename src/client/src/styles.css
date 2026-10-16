@@ -143,6 +143,32 @@
   .field-error {
     @apply mt-1.5 flex items-center gap-1 text-xs text-danger;
   }
+
+  /* An option of a segmented control: a label around a hidden radio input. */
+  .segment {
+    @apply flex cursor-pointer flex-col items-center justify-center gap-0.5 rounded-lg px-1 py-2 text-xs font-medium text-muted transition has-checked:bg-surface-raised has-checked:text-fg has-checked:shadow-sm has-focus-visible:ring-2 has-focus-visible:ring-accent;
+  }
+
+  /* A checkbox shown as an on/off switch. */
+  .switch {
+    @apply relative h-6 w-10 shrink-0 cursor-pointer appearance-none rounded-full bg-fg/15 transition-colors outline-none checked:bg-accent focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-surface-raised;
+    &::before {
+      @apply absolute top-0.5 left-0.5 size-5 rounded-full bg-white shadow-sm transition-transform content-[''];
+    }
+    &:checked::before {
+      @apply translate-x-4;
+    }
+  }
+
+  .checkerboard {
+    background-image: conic-gradient(
+      var(--line) 25%,
+      transparent 0 50%,
+      var(--line) 0 75%,
+      transparent 0
+    );
+    background-size: 16px 16px;
+  }
 }
 
 /*

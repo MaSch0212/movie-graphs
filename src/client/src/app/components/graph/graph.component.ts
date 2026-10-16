@@ -26,6 +26,7 @@ import {
 } from '../ui/language-switcher/language-options.component';
 import { MenuComponent } from '../ui/menu/menu.component';
 import { CopyGraphDialogComponent } from './copy-graph-dialog/copy-graph-dialog.component';
+import { ExportImageDialogComponent } from './export-image-dialog/export-image-dialog.component';
 import { computeGraphLayout, EMPTY_LAYOUT, GraphLayout, LayoutNode } from './graph-layout';
 import {
   GraphNodeDialogComponent,
@@ -63,6 +64,7 @@ const ZOOM_LEVELS = [
   selector: 'app-graph',
   imports: [
     CopyGraphDialogComponent,
+    ExportImageDialogComponent,
     GraphNodeDialogComponent,
     LanguageOptionsComponent,
     MenuComponent,

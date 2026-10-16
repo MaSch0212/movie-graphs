@@ -128,8 +128,7 @@
       <legend class="field-label">{{ t.node_status() }}</legend>
       <div class="grid grid-cols-4 gap-1 rounded-xl bg-fg/6 p-1">
         @for (option of statusOptions; track option.value) {
-          <label
-            class="flex cursor-pointer flex-col items-center gap-0.5 rounded-lg px-1 py-2 text-xs font-medium text-muted transition has-checked:bg-surface-raised has-checked:text-fg has-checked:shadow-sm has-focus-visible:ring-2 has-focus-visible:ring-accent">
+          <label class="segment">
             <input type="radio" class="sr-only" formControlName="status" [value]="option.value" />
             <span class="text-lg" [class]="option.icon"></span>
             {{ t[`status_${option.value}`]() }}

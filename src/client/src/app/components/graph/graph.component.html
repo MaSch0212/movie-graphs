@@ -163,6 +163,14 @@
             type="button"
             role="menuitem"
             class="menu-item"
+            (click)="exportImageDialog.open()">
+            <span class="icon-[mdi--image-outline]"></span>
+            {{ t.graph_downloadImage() }}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            class="menu-item"
             aria-haspopup="menu"
             data-keep-open
             (click)="languageMenuShown.set(true); moreMenu.focusFirst()"
@@ -230,4 +238,8 @@
     [graph]="graphValue.graph"
     (nodeChange)="onNodeChange($event)" />
   <app-copy-graph-dialog #copyGraphDialog [graph]="graphValue.graph" />
+  <app-export-image-dialog
+    #exportImageDialog
+    [layout]="layout()"
+    [graphName]="graphValue.graph.name" />
 }

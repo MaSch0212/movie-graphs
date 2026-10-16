@@ -38,6 +38,7 @@
     "resetViewLabel": "Reset view to the next title",
     "hours": "h",
     "copyGraph": "Copy graph",
+    "downloadImage": "Download as image",
     "deleteGraph": "Delete graph",
     "deleteConfirmTitle": "Delete graph?",
     "deleteConfirmMessage": "\"{{ name }}\" and all of its titles will be deleted for everyone with the link. This cannot be undone.",
@@ -55,6 +56,24 @@
     "resetProgressHint": "All titles start as \"To watch\".",
     "copy": "Copy",
     "failed": "Copying the graph failed. Please try again."
+  },
+  "exportImage": {
+    "title": "Download as image",
+    "format": "Format",
+    "resolution": "Resolution",
+    "background": "Background",
+    "light": "Light",
+    "dark": "Dark",
+    "transparent": "Transparent",
+    "noTransparencyInJpeg": "JPEG images cannot be transparent.",
+    "dots": "Dotted background",
+    "showStatus": "Show status",
+    "preview": "Preview",
+    "loadingPosters": "Loading posters…",
+    "size": "{{ width }} × {{ height }} px",
+    "resolutionLimited": "Reduced to the largest image this browser can create.",
+    "download": "Download",
+    "failed": "Creating the image failed. Please try again."
   },
   "status": {
     "unwatched": "To watch",
