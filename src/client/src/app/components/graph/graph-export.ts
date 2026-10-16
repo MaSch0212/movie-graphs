@@ -87,7 +87,7 @@ const BAND_ICON = 11;
 const FONT_FAMILY = 'Inter, system-ui, sans-serif';
 // Like the titles on the posters in the app (see graph.component.css).
 const TITLE_FONT = `600 14px ${FONT_FAMILY}`;
-const TITLE_LINE_HEIGHT = 16;
+const TITLE_LINE_HEIGHT = 18;
 const TITLE_MAX_LINES = 3;
 const EPISODES_FONT = `500 11px ${FONT_FAMILY}`;
 const EPISODES_LINE_HEIGHT = 13;

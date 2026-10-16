@@ -39,10 +39,15 @@
 }
 
 .node-mark {
+  --mark-ring: 2px;
   display: grid;
   place-items: center;
-  border: 2px solid var(--surface-raised);
   border-radius: 9999px;
+  /*
+   * The ring is a shadow, not a border: a round border is painted in pieces, which can show seams
+   * like a cross when the graph is scaled.
+   */
+  box-shadow: 0 0 0 var(--mark-ring) var(--surface-raised);
   background: var(--status-color);
   color: white;
 }
@@ -84,10 +89,11 @@
 /* --- near: frames and small badges --- */
 .graph-content[data-zoom='near'] {
   .node-mark {
-    top: 4px;
-    right: 4px;
-    width: 26px;
-    height: 26px;
+    /* 26px including the ring. */
+    top: 6px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
     font-size: 14px;
   }
   .node[data-status='watched'] {
@@ -108,12 +114,15 @@
   .node-mark {
     top: 50%;
     left: 50%;
-    width: 44px;
-    height: 44px;
-    border-width: 3px;
+    --mark-ring: 3px;
+    /* 44px including the ring. */
+    width: 38px;
+    height: 38px;
     font-size: 26px;
     transform: translate(-50%, -50%) scale(var(--stamp-scale));
-    box-shadow: 0 4px 14px -4px oklch(0 0 0 / 0.5);
+    box-shadow:
+      0 0 0 var(--mark-ring) var(--surface-raised),
+      0 4px 14px -4px oklch(0 0 0 / 0.5);
   }
   .node-band {
     font-size: calc(10px * var(--stamp-scale));
@@ -164,7 +173,8 @@
   overflow: hidden;
   font-size: 14px;
   font-weight: 600;
-  line-height: 16px;
+  /* Room for descenders like "g" in the last line, which the clamp would cut off otherwise. */
+  line-height: 18px;
   overflow-wrap: anywhere;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
