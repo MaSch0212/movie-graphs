@@ -122,7 +122,7 @@
     }
 
     <header
-      class="glass pointer-events-auto absolute top-(--app-top) right-3 left-3 flex items-center gap-2 rounded-2xl p-2 sm:right-auto sm:max-w-[calc(100%-1.5rem)] sm:min-w-80">
+      class="glass pointer-events-auto absolute top-(--app-top) right-(--app-right) left-(--app-left) flex items-center gap-2 rounded-2xl p-2 sm:right-auto sm:max-w-[calc(100%-var(--app-left)-var(--app-right))] sm:min-w-80">
       <a
         routerLink="/"
         class="btn btn-ghost btn-icon shrink-0"
@@ -245,7 +245,7 @@
     <span class="sr-only" aria-live="polite">{{ notice()?.text ?? '' }}</span>
 
     <div
-      class="absolute right-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 flex items-end justify-end">
+      class="absolute right-(--app-right) bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-(--app-left) flex items-end justify-end">
       <button
         type="button"
         class="glass btn btn-ghost btn-icon pointer-events-auto size-12 rounded-2xl text-xl"

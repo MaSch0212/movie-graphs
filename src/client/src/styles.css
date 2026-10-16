@@ -171,6 +171,12 @@
   }
 }
 
+/* Distance of controls from the sides of the screen: beside the notch / Dynamic Island in landscape. */
+:root {
+  --app-left: max(0.75rem, env(safe-area-inset-left));
+  --app-right: max(0.75rem, env(safe-area-inset-right));
+}
+
 /*
  * Distance of top-aligned controls from the top of the screen: below the status bar / notch.
  * iOS 27 draws a progressive blur over the top of home screen apps that reaches about 40pt below
