@@ -1,0 +1,79 @@
+@let t = translate.translations;
+<app-dialog [(open)]="visible" [title]="t.copyGraph_title()">
+  <form
+    id="copy-graph-form"
+    class="flex flex-col gap-5 pt-1 pb-3"
+    (submit)="$event.preventDefault(); submit()">
+    @if (hasFailed()) {
+      <div
+        class="flex items-center gap-2 rounded-xl bg-danger/10 px-3.5 py-3 text-sm text-danger"
+        role="alert">
+        <span class="icon-[mdi--alert-circle-outline] shrink-0 text-lg"></span>
+        {{ t.copyGraph_failed() }}
+      </div>
+    }
+
+    <div>
+      <label for="copyName" class="field-label">{{ t.copyGraph_name() }}</label>
+      <input
+        id="copyName"
+        type="text"
+        class="input"
+        autocomplete="off"
+        [value]="name()"
+        (input)="name.set($any($event.target).value)" />
+      @if (submitted() && !name().trim()) {
+        <p class="field-error">
+          <span class="icon-[mdi--alert-circle]"></span>
+          {{ t.copyGraph_nameRequired() }}
+        </p>
+      }
+    </div>
+
+    <fieldset>
+      <legend class="field-label">{{ t.copyGraph_progress() }}</legend>
+      <div class="grid gap-2 sm:grid-cols-2">
+        @for (option of [true, false]; track option) {
+          <label
+            class="flex cursor-pointer items-start gap-3 rounded-xl border border-line p-3.5 transition hover:bg-fg/4 has-checked:border-accent has-checked:bg-accent/8 has-focus-visible:ring-2 has-focus-visible:ring-accent">
+            <input
+              type="radio"
+              name="resetStatus"
+              class="sr-only"
+              [checked]="resetStatus() === option"
+              (change)="resetStatus.set(option)" />
+            <span
+              class="mt-0.5 shrink-0 text-xl text-accent"
+              [class]="option ? 'icon-[mdi--restart]' : 'icon-[mdi--progress-check]'"></span>
+            <span class="min-w-0">
+              <span class="block text-sm font-medium">
+                {{ option ? t.copyGraph_resetProgress() : t.copyGraph_keepProgress() }}
+              </span>
+              <span class="mt-0.5 block text-xs text-muted">
+                {{ option ? t.copyGraph_resetProgressHint() : t.copyGraph_keepProgressHint() }}
+              </span>
+            </span>
+          </label>
+        }
+      </div>
+    </fieldset>
+  </form>
+
+  <ng-container dialogFooter>
+    <div class="grow"></div>
+    <button
+      type="button"
+      class="btn btn-ghost"
+      [disabled]="isLoading()"
+      (click)="visible.set(false)">
+      {{ t.common_cancel() }}
+    </button>
+    <button type="submit" form="copy-graph-form" class="btn btn-primary" [disabled]="isLoading()">
+      @if (isLoading()) {
+        <span
+          class="size-4 animate-spin rounded-full border-2 border-accent-fg/30 border-t-accent-fg"></span>
+      }
+      {{ t.copyGraph_copy() }}
+    </button>
+  </ng-container>
+</app-dialog>

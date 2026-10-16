@@ -35,7 +35,21 @@
     "addTitle": "Add title",
     "resetView": "Reset view",
     "resetViewLabel": "Reset view to the next title",
-    "hours": "h"
+    "hours": "h",
+    "copyGraph": "Copy graph"
+  },
+  "copyGraph": {
+    "title": "Copy graph",
+    "name": "Name of the copy",
+    "defaultName": "{{ name }} (copy)",
+    "nameRequired": "A name is required",
+    "progress": "Progress",
+    "keepProgress": "Keep progress",
+    "keepProgressHint": "Every title keeps its status.",
+    "resetProgress": "Start fresh",
+    "resetProgressHint": "All titles start as \"To watch\".",
+    "copy": "Copy",
+    "failed": "Copying the graph failed. Please try again."
   },
   "status": {
     "unwatched": "To watch",

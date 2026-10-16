@@ -155,6 +155,10 @@
             <span class="icon-[mdi--link-variant]"></span>
             {{ t.graph_copyLink() }}
           </button>
+          <button type="button" role="menuitem" class="menu-item" (click)="copyGraphDialog.open()">
+            <span class="icon-[mdi--content-duplicate]"></span>
+            {{ t.graph_copyGraph() }}
+          </button>
           <button
             type="button"
             role="menuitem"
@@ -212,4 +216,5 @@
     #nodeDialog
     [graph]="graphValue.graph"
     (nodeChange)="onNodeChange($event)" />
+  <app-copy-graph-dialog #copyGraphDialog [graph]="graphValue.graph" />
 }
