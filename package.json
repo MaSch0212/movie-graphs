@@ -2,7 +2,7 @@
   "name": "movie-graphs-repo",
   "version": "0.0.0",
   "type": "module",
-  "packageManager": "pnpm@9.2.0",
+  "packageManager": "pnpm@10.34.7",
   "scripts": {
     "preinstall": "pnpm install -C src/client && dotnet restore",
     "build": "pnpm server:build && pnpm client:build && pnpm docker:build",
