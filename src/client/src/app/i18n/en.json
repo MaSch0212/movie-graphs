@@ -8,7 +8,8 @@
     "save": "Save",
     "loading": "Loading",
     "language": "Language",
-    "systemLanguage": "System"
+    "systemLanguage": "System",
+    "typeToConfirm": "Type {{ text }} to confirm"
   },
   "home": {
     "tagline": "Plan what to watch next — in the right order.",
@@ -36,7 +37,11 @@
     "resetView": "Reset view",
     "resetViewLabel": "Reset view to the next title",
     "hours": "h",
-    "copyGraph": "Copy graph"
+    "copyGraph": "Copy graph",
+    "deleteGraph": "Delete graph",
+    "deleteConfirmTitle": "Delete graph?",
+    "deleteConfirmMessage": "\"{{ name }}\" and all of its titles will be deleted for everyone with the link. This cannot be undone.",
+    "deleteFailed": "Deleting the graph failed. Please try again."
   },
   "copyGraph": {
     "title": "Copy graph",

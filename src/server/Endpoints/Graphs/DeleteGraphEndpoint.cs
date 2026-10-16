@@ -42,7 +42,15 @@ public class DeleteGraphEndpoint(DatabaseContext databaseContext, IIdService idS
             return;
         }
 
+        // The images belong to the graph's nodes, but are not deleted together with them.
+        var imageIds = await databaseContext
+            .Nodes.Where(x => x.GraphId == graphId)
+            .Select(x => x.ImageId)
+            .ToListAsync(ct);
+        await using var transaction = await databaseContext.Database.BeginTransactionAsync(ct);
         await graphQuery.ExecuteDeleteAsync(ct);
+        await databaseContext.Images.Where(x => imageIds.Contains(x.Id)).ExecuteDeleteAsync(ct);
+        await transaction.CommitAsync(ct);
 
         await Send.NoContentAsync(ct);
     }

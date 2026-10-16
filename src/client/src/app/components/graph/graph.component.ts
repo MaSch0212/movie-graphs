@@ -13,12 +13,13 @@ import {
   viewChild,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { produce } from 'immer';
 
 import { GraphsService } from '../../api/services';
 import { TranslateService } from '../../i18n/translate.service';
-import { rememberRecentGraph } from '../../utils/recent-graphs';
+import { forgetRecentGraph, rememberRecentGraph } from '../../utils/recent-graphs';
+import { ConfirmService } from '../ui/confirm-dialog/confirm.service';
 import {
   currentLanguageName,
   LanguageOptionsComponent,
@@ -75,6 +76,8 @@ const ZOOM_LEVELS = [
 export class GraphComponent {
   private readonly _graphsService = inject(GraphsService);
   private readonly _document = inject(DOCUMENT);
+  private readonly _router = inject(Router);
+  private readonly _confirmService = inject(ConfirmService);
   protected readonly translate = inject(TranslateService);
   private readonly _routeParams = toSignal(inject(ActivatedRoute).params);
 
@@ -117,7 +120,9 @@ export class GraphComponent {
   protected readonly graphName = computed(() => this.graph.value()?.graph.name);
   protected readonly layout = signal<GraphLayout>(EMPTY_LAYOUT);
   protected readonly hoveredNode = signal<LayoutNode | undefined>(undefined);
-  protected readonly linkCopied = signal(false);
+  /** A short message shown at the top of the screen. */
+  protected readonly notice = signal<{ text: string; error?: boolean } | undefined>(undefined);
+  private _noticeTimer?: ReturnType<typeof setTimeout>;
   /** Whether the "More" menu shows the language choices instead of its main items. */
   protected readonly languageMenuShown = signal(false);
   protected readonly currentLanguageName = computed(() => currentLanguageName(this.translate));
@@ -191,6 +196,7 @@ export class GraphComponent {
       this._unbindPanZoom?.();
       if (this._renderFrame !== undefined) cancelAnimationFrame(this._renderFrame);
       clearTimeout(this._idleTimer);
+      clearTimeout(this._noticeTimer);
     });
   }
 
@@ -257,8 +263,35 @@ export class GraphComponent {
       // The clipboard is only available in secure contexts (HTTPS) and may be denied.
       return;
     }
-    this.linkCopied.set(true);
-    setTimeout(() => this.linkCopied.set(false), 1500);
+    this.showNotice({ text: this.translate.translations.graph_linkCopied() });
+  }
+
+  protected async deleteGraph() {
+    const graph = this.graph.value()?.graph;
+    if (!graph) return;
+    const t = this.translate.translations;
+    const confirmed = await this._confirmService.confirm({
+      title: t.graph_deleteConfirmTitle(),
+      message: t.graph_deleteConfirmMessage({ name: graph.name }),
+      confirmLabel: t.common_delete(),
+      destructive: true,
+      confirmText: graph.name,
+    });
+    if (!confirmed) return;
+
+    const response = await this._graphsService.deleteGraph({ graphId: graph.id });
+    if (!response.ok) {
+      this.showNotice({ text: t.graph_deleteFailed(), error: true }, 4000);
+      return;
+    }
+    forgetRecentGraph(graph.id);
+    await this._router.navigate(['/']);
+  }
+
+  private showNotice(notice: { text: string; error?: boolean }, duration = 1500) {
+    this.notice.set(notice);
+    clearTimeout(this._noticeTimer);
+    this._noticeTimer = setTimeout(() => this.notice.set(undefined), duration);
   }
 
   private scheduleRender() {

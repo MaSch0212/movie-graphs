@@ -172,6 +172,15 @@
             <span class="text-xs text-muted">{{ currentLanguageName() }}</span>
             <span class="icon-[mdi--chevron-right] text-muted"></span>
           </button>
+          <div class="menu-separator" role="separator"></div>
+          <button
+            type="button"
+            role="menuitem"
+            class="menu-item text-danger hover:bg-danger/10 focus-visible:bg-danger/10"
+            (click)="deleteGraph()">
+            <span class="icon-[mdi--delete-outline]"></span>
+            {{ t.graph_deleteGraph() }}
+          </button>
         } @else {
           <button
             type="button"
@@ -189,15 +198,19 @@
       </app-menu>
     </header>
 
-    @if (linkCopied()) {
+    @if (notice(); as notice) {
       <div
-        class="glass absolute top-[calc(var(--app-top)+4.5rem)] left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full px-4 py-2 text-sm whitespace-nowrap">
-        <span class="icon-[mdi--check] text-watched"></span>
-        {{ t.graph_linkCopied() }}
+        class="glass absolute top-[calc(var(--app-top)+4.5rem)] left-1/2 flex max-w-[calc(100%-1.5rem)] -translate-x-1/2 items-center gap-2 rounded-full px-4 py-2 text-sm">
+        @if (notice.error) {
+          <span class="icon-[mdi--alert-circle-outline] shrink-0 text-danger"></span>
+        } @else {
+          <span class="icon-[mdi--check] shrink-0 text-watched"></span>
+        }
+        {{ notice.text }}
       </div>
     }
-    <!-- Announces the copied link to screen readers. -->
-    <span class="sr-only" aria-live="polite">{{ linkCopied() ? t.graph_linkCopied() : '' }}</span>
+    <!-- Announces the notices to screen readers. -->
+    <span class="sr-only" aria-live="polite">{{ notice()?.text ?? '' }}</span>
 
     <div
       class="absolute right-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 flex items-end justify-end">

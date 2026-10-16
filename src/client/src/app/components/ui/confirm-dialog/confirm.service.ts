@@ -5,6 +5,8 @@ export type ConfirmRequest = {
   message: string;
   confirmLabel?: string;
   destructive?: boolean;
+  /** Text the user has to type before the action can be confirmed, e.g. the name of a graph. */
+  confirmText?: string;
 };
 
 type PendingConfirm = ConfirmRequest & { resolve: (confirmed: boolean) => void };
