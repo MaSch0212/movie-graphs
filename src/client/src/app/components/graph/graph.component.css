@@ -22,6 +22,11 @@
   --status-color: var(--watching);
   /* The title being watched stands out with a thicker frame. */
   --ring-width: 5px;
+  /*
+   * The rounded corners of the poster and the label are anti-aliased; on the dark background of the
+   * title they showed faint dark arcs between them and the frame.
+   */
+  background-color: var(--watching);
 }
 .node[data-status='ignored'] {
   --status-color: var(--ignored);
@@ -34,8 +39,13 @@
   pointer-events: none;
 }
 .node-ring {
-  inset: 0;
-  border-radius: 10px;
+  /*
+   * The frame (a shadow) starts 1px inside the poster and is 1px wider, so it overlaps the
+   * anti-aliased edge of the poster; otherwise a faint dark seam shows between them.
+   */
+  --ring-overlap: 1px;
+  inset: var(--ring-overlap);
+  border-radius: calc(10px - var(--ring-overlap));
 }
 
 .node-mark {
@@ -73,7 +83,7 @@
 
 .node[data-status='watching'] .node-ring {
   box-shadow:
-    0 0 0 var(--ring-width) var(--watching),
+    0 0 0 calc(var(--ring-width) + var(--ring-overlap)) var(--watching),
     0 0 calc(var(--ring-width) * 4) calc(var(--ring-width) * 2)
       color-mix(in oklch, var(--watching) 60%, transparent);
 }
@@ -101,11 +111,12 @@
       opacity: 0.7;
     }
     .node-ring {
-      box-shadow: 0 0 0 var(--ring-width) var(--watched);
+      box-shadow: 0 0 0 calc(var(--ring-width) + var(--ring-overlap)) var(--watched);
     }
   }
   .node[data-status='ignored'] .node-ring {
     outline: var(--ring-width) dashed var(--ignored);
+    outline-offset: var(--ring-overlap);
   }
 }
 

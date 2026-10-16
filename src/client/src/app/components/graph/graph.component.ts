@@ -123,7 +123,6 @@ export class GraphComponent {
   private _layoutGraphId?: string;
   private _initializedGraphId?: string;
   private _pendingPanToNodeId?: string;
-  private _zoomLevel?: string;
 
   protected readonly graph = resource({
     params: () => this._graphId(),
@@ -409,10 +408,8 @@ export class GraphComponent {
 
     content.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${k})`;
     const zoomLevel = ZOOM_LEVELS.find(level => k < level.below)?.level ?? 'near';
-    if (zoomLevel !== this._zoomLevel) {
-      this._zoomLevel = zoomLevel;
-      content.dataset['zoom'] = zoomLevel;
-    }
+    // Compared with the element itself: it is created anew e.g. when another graph is loaded.
+    if (content.dataset['zoom'] !== zoomLevel) content.dataset['zoom'] = zoomLevel;
 
     // The dots move with the canvas and get spaced out in steps so they never get too dense.
     let spacing = DOT_SPACING * k;
