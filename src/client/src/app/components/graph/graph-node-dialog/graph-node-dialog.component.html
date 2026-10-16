@@ -31,6 +31,88 @@
       }
     </div>
 
+    <div>
+      <label for="nodeShortName" class="field-label">{{ t.node_shortTitle() }}</label>
+      <input
+        id="nodeShortName"
+        type="text"
+        class="input"
+        formControlName="shortName"
+        autocomplete="off"
+        aria-describedby="nodeShortNameHint"
+        placeholder="—" />
+      <p id="nodeShortNameHint" class="mt-1.5 text-xs text-muted">{{ t.node_shortTitleHint() }}</p>
+    </div>
+
+    <div class="flex gap-4">
+      <fieldset class="grow">
+        <legend class="field-label">{{ t.node_type() }}</legend>
+        <div class="grid grid-cols-2 gap-1 rounded-xl bg-fg/6 p-1">
+          @for (option of typeOptions; track option.value) {
+            <label class="segment flex-row gap-1.5 text-sm">
+              <input type="radio" class="sr-only" formControlName="type" [value]="option.value" />
+              <span class="text-base" [class]="option.icon"></span>
+              {{ t[`node_${option.value}`]() }}
+            </label>
+          }
+        </div>
+      </fieldset>
+      <div class="w-24 shrink-0">
+        <label for="nodeYear" class="field-label">{{ t.node_year() }}</label>
+        <input
+          id="nodeYear"
+          type="number"
+          inputmode="numeric"
+          class="input"
+          formControlName="year"
+          placeholder="—" />
+      </div>
+    </div>
+
+    @if (form.controls.type.value === 'series') {
+      <div class="flex gap-4">
+        <div class="w-24 shrink-0">
+          <label for="nodeSeason" class="field-label">{{ t.node_season() }}</label>
+          <input
+            id="nodeSeason"
+            type="number"
+            inputmode="numeric"
+            min="0"
+            class="input"
+            formControlName="season"
+            placeholder="—" />
+        </div>
+        <fieldset class="min-w-0">
+          <legend class="field-label">{{ t.node_episodes() }}</legend>
+          <div class="flex items-center gap-2">
+            <input
+              type="number"
+              inputmode="numeric"
+              min="1"
+              class="input w-24"
+              formControlName="episodeFrom"
+              placeholder="—"
+              [attr.aria-label]="t.node_episodeFrom()" />
+            <span class="text-muted">–</span>
+            <input
+              type="number"
+              inputmode="numeric"
+              min="1"
+              class="input w-24"
+              formControlName="episodeTo"
+              placeholder="—"
+              [attr.aria-label]="t.node_episodeTo()" />
+          </div>
+        </fieldset>
+      </div>
+      @if (form.hasError('episodeRange') && submitted()) {
+        <p class="field-error -mt-3">
+          <span class="icon-[mdi--alert-circle]"></span>
+          {{ t.node_episodesInvalid() }}
+        </p>
+      }
+    }
+
     <div class="flex gap-4">
       <!-- Poster -->
       <label

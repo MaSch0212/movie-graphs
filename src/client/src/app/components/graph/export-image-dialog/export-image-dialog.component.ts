@@ -9,6 +9,7 @@ import {
 } from '@angular/core';
 
 import { TranslateService } from '../../../i18n/translate.service';
+import { fullTitle } from '../../../utils/node-title';
 import { DialogComponent } from '../../ui/dialog/dialog.component';
 import {
   buildGraphSvg,
@@ -110,6 +111,7 @@ export class ExportImageDialogComponent {
     return buildGraphSvg(this.layout(), this.options(), {
       images: posters.images,
       watchingLabel: this.translate.translations.status_watching(),
+      title: node => fullTitle(node, this.translate.translations),
     });
   });
 
@@ -153,7 +155,11 @@ export class ExportImageDialogComponent {
       const svg = buildGraphSvg(
         this.layout(),
         this.options(),
-        { images: posters.images, watchingLabel: this.translate.translations.status_watching() },
+        {
+          images: posters.images,
+          watchingLabel: this.translate.translations.status_watching(),
+          title: node => fullTitle(node, this.translate.translations),
+        },
         this._scale()
       );
       const blob = await renderGraphImage(svg, this.options());

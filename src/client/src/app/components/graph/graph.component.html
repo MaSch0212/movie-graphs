@@ -58,7 +58,7 @@
           [style.top.px]="node.position.y"
           [style.width.px]="node.dimension.width"
           [style.height.px]="node.dimension.height"
-          [attr.aria-label]="node.label + ' (' + t[`status_${node.data.status}`]() + ')'"
+          [attr.aria-label]="title(node.data) + ' (' + t[`status_${node.data.status}`]() + ')'"
           (click)="nodeDialog.open(node.data)"
           (pointerenter)="$event.pointerType === 'mouse' && hoveredNode.set(node)"
           (pointerleave)="hoveredNode.set(undefined)">
@@ -106,15 +106,8 @@
         [style.left.px]="tooltip.left"
         [style.top.px]="tooltip.top - 8">
         <div class="font-medium">{{ tooltip.node.name }}</div>
-        @if (tooltip.node.whereToWatch || tooltip.node.duration) {
-          <div class="mt-0.5 flex gap-2 text-xs text-muted">
-            @if (tooltip.node.whereToWatch) {
-              <span>{{ tooltip.node.whereToWatch }}</span>
-            }
-            @if (tooltip.node.duration) {
-              <span>{{ tooltip.node.duration.slice(0, 5) }} {{ t.graph_hours() }}</span>
-            }
-          </div>
+        @if (tooltipDetails(); as details) {
+          <div class="mt-0.5 text-xs text-muted">{{ details }}</div>
         }
       </div>
     }

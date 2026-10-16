@@ -7,7 +7,6 @@ export const NODE_HEIGHT = 135;
 
 export type LayoutNode = {
   id: string;
-  label: string;
   data: ApiGraphNode;
   position: { x: number; y: number };
   dimension: { width: number; height: number };
@@ -83,7 +82,6 @@ export async function computeGraphLayout(
       if (!node) return [];
       return {
         id: node.id,
-        label: node.name,
         data: node,
         position: { x: child.x ?? 0, y: child.y ?? 0 },
         dimension: { width: NODE_WIDTH, height: NODE_HEIGHT },

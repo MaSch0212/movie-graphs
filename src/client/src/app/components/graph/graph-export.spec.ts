@@ -4,8 +4,13 @@ import { GraphLayout } from './graph-layout';
 
 const node = (id: string, status: ApiGraphNodeStatus, x: number) => ({
   id,
-  label: `Title <${id}> & "more"`,
-  data: { id, name: id, imageUrl: `images/${id}`, status },
+  data: {
+    id,
+    name: `Title <${id}> & "more"`,
+    type: 'movie' as const,
+    imageUrl: `images/${id}`,
+    status,
+  },
   position: { x, y: 0 },
   dimension: { width: 90, height: 135 },
 });
@@ -27,6 +32,7 @@ const options: ExportOptions = {
 const content = {
   images: new Map([['a', 'data:image/jpeg;base64,AAAA']]),
   watchingLabel: 'Watching',
+  title: (node: { name: string }) => node.name,
 };
 
 const parse = (svg: string) => new DOMParser().parseFromString(svg, 'image/svg+xml');

@@ -7,13 +7,27 @@ import {
   output,
   signal,
 } from '@angular/core';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  ValidationErrors,
+  Validators,
+} from '@angular/forms';
 
-import { ApiGraph, ApiGraphEdge, ApiGraphNode, ApiGraphNodeStatus } from '../../../api/models';
+import {
+  ApiGraph,
+  ApiGraphEdge,
+  ApiGraphNode,
+  ApiGraphNodeStatus,
+  ApiGraphNodeType,
+} from '../../../api/models';
 import { GraphsService } from '../../../api/services';
 import { TranslateService } from '../../../i18n/translate.service';
 import { imageFileValidator } from '../../../utils/image-file-validator';
 import { Logger } from '../../../utils/logger';
+import { fullTitle } from '../../../utils/node-title';
 import { fromTimeSpan, toTimeSpan } from '../../../utils/time-span';
 import { ConfirmService } from '../../ui/confirm-dialog/confirm.service';
 import { DialogComponent } from '../../ui/dialog/dialog.component';
@@ -49,16 +63,27 @@ export class GraphNodeDialogComponent {
       )
     ).sort()
   );
-  protected readonly form = new FormGroup({
-    name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
-    imageFile: new FormControl<File | string | null>(null, {
-      validators: [Validators.required, imageFileValidator],
-    }),
-    dependsOn: new FormControl<ApiGraphNode[]>([], { nonNullable: true }),
-    status: new FormControl<ApiGraphNodeStatus>('unwatched', { nonNullable: true }),
-    durationMinutes: new FormControl<number | null>(null, { validators: [Validators.min(0)] }),
-    whereToWatch: new FormControl<string>('', { nonNullable: true }),
-  });
+  protected readonly form = new FormGroup(
+    {
+      name: new FormControl<string>('', { nonNullable: true, validators: [Validators.required] }),
+      shortName: new FormControl<string>('', { nonNullable: true }),
+      type: new FormControl<ApiGraphNodeType>('movie', { nonNullable: true }),
+      year: new FormControl<number | null>(null, {
+        validators: [Validators.min(1800), Validators.max(2200)],
+      }),
+      season: new FormControl<number | null>(null, { validators: [Validators.min(0)] }),
+      episodeFrom: new FormControl<number | null>(null, { validators: [Validators.min(1)] }),
+      episodeTo: new FormControl<number | null>(null, { validators: [Validators.min(1)] }),
+      imageFile: new FormControl<File | string | null>(null, {
+        validators: [Validators.required, imageFileValidator],
+      }),
+      dependsOn: new FormControl<ApiGraphNode[]>([], { nonNullable: true }),
+      status: new FormControl<ApiGraphNodeStatus>('unwatched', { nonNullable: true }),
+      durationMinutes: new FormControl<number | null>(null, { validators: [Validators.min(0)] }),
+      whereToWatch: new FormControl<string>('', { nonNullable: true }),
+    },
+    { validators: [episodeRangeValidator] }
+  );
   protected readonly nodeToUpdate = signal<ApiGraphNode | undefined>(undefined);
   protected readonly visible = signal(false);
   protected readonly isLoading = signal(false);
@@ -69,7 +94,10 @@ export class GraphNodeDialogComponent {
   protected readonly otherNodes = computed(() =>
     this.graph()
       .nodes.filter(node => node.id !== this.nodeToUpdate()?.id)
-      .sort((a, b) => a.name.localeCompare(b.name))
+      // By title, then season and episodes (with numbers in their natural order).
+      .sort((a, b) =>
+        this.nodeLabel(a).localeCompare(this.nodeLabel(b), undefined, { numeric: true })
+      )
   );
   protected readonly statusOptions: { value: ApiGraphNodeStatus; icon: string }[] = [
     { value: 'unwatched', icon: 'icon-[mdi--bookmark-outline]' },
@@ -77,13 +105,24 @@ export class GraphNodeDialogComponent {
     { value: 'watched', icon: 'icon-[mdi--check]' },
     { value: 'ignored', icon: 'icon-[mdi--eye-off-outline]' },
   ];
-  protected readonly nodeLabel = (node: ApiGraphNode) => node.name;
+  protected readonly typeOptions: { value: ApiGraphNodeType; icon: string }[] = [
+    { value: 'movie', icon: 'icon-[mdi--movie-open-outline]' },
+    { value: 'series', icon: 'icon-[mdi--television-classic]' },
+  ];
+  protected readonly nodeLabel = (node: ApiGraphNode) =>
+    fullTitle(node, this.translate.translations);
   protected readonly nodeKey = (node: ApiGraphNode) => node.id;
 
   public open(nodeToUpdate?: ApiGraphNode): void {
     this.nodeToUpdate.set(nodeToUpdate);
     this.form.reset({
       name: nodeToUpdate?.name ?? '',
+      shortName: nodeToUpdate?.shortName ?? '',
+      type: nodeToUpdate?.type ?? 'movie',
+      year: nodeToUpdate?.year ?? null,
+      season: nodeToUpdate?.season ?? null,
+      episodeFrom: nodeToUpdate?.episodeFrom ?? null,
+      episodeTo: nodeToUpdate?.episodeTo ?? null,
       imageFile: nodeToUpdate?.imageUrl ?? null,
       dependsOn: nodeToUpdate ? this.determineDependsOn(nodeToUpdate) : [],
       status: nodeToUpdate?.status ?? 'unwatched',
@@ -121,6 +160,14 @@ export class GraphNodeDialogComponent {
     if (!this.form.valid) return;
 
     const value = this.form.getRawValue();
+    const isSeries = value.type === 'series';
+    const details = {
+      type: value.type,
+      year: value.year,
+      season: isSeries ? value.season : null,
+      episodeFrom: isSeries ? value.episodeFrom : null,
+      episodeTo: isSeries ? value.episodeTo : null,
+    };
     this.isLoading.set(true);
     this.hasFailed.set(false);
     try {
@@ -130,6 +177,12 @@ export class GraphNodeDialogComponent {
             graphNodeId: nodeToUpdate.id,
             body: {
               name: value.name,
+              shortName: value.shortName.trim(),
+              type: details.type,
+              year: orClear(details.year),
+              season: orClear(details.season),
+              episodeFrom: orClear(details.episodeFrom),
+              episodeTo: orClear(details.episodeTo),
               image: value.imageFile instanceof File ? value.imageFile : undefined,
               status: value.status,
               // Empty values clear the field (null values are not sent at all).
@@ -141,6 +194,12 @@ export class GraphNodeDialogComponent {
             graphId: this.graph().id,
             body: {
               name: value.name,
+              shortName: value.shortName.trim() || undefined,
+              type: details.type,
+              year: details.year ?? undefined,
+              season: details.season ?? undefined,
+              episodeFrom: details.episodeFrom ?? undefined,
+              episodeTo: details.episodeTo ?? undefined,
               image: value.imageFile as File,
               status: value.status,
               duration:
@@ -178,7 +237,9 @@ export class GraphNodeDialogComponent {
 
     const confirmed = await this._confirmService.confirm({
       title: this.translate.translations.node_deleteConfirmTitle(),
-      message: this.translate.translations.node_deleteConfirmMessage({ name: nodeToDelete.name }),
+      message: this.translate.translations.node_deleteConfirmMessage({
+        name: fullTitle(nodeToDelete, this.translate.translations),
+      }),
       confirmLabel: this.translate.translations.common_delete(),
       destructive: true,
     });
@@ -259,4 +320,20 @@ export class GraphNodeDialogComponent {
       .map(edge => this.graph().nodes.find(node => node.id === edge.sourceNodeId))
       .filter((node): node is ApiGraphNode => !!node);
   }
+}
+
+/** The last episode must not be before the first one, and needs a first one. */
+function episodeRangeValidator(group: AbstractControl): ValidationErrors | null {
+  const from = group.get('episodeFrom')?.value as number | null;
+  const to = group.get('episodeTo')?.value as number | null;
+  if (group.get('type')?.value !== 'series' || to === null) return null;
+  return from === null || to < from ? { episodeRange: true } : null;
+}
+
+/**
+ * Empty values clear a field when updating (null values are not sent at all). The API types
+ * don't know about this, hence the cast.
+ */
+function orClear(value: number | null): number {
+  return value ?? ('' as unknown as number);
 }

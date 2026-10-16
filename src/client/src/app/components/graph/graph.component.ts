@@ -16,8 +16,10 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { produce } from 'immer';
 
+import { ApiGraphNode } from '../../api/models';
 import { GraphsService } from '../../api/services';
 import { TranslateService } from '../../i18n/translate.service';
+import { episodeInfo, fullTitle } from '../../utils/node-title';
 import { forgetRecentGraph, rememberRecentGraph } from '../../utils/recent-graphs';
 import { ConfirmService } from '../ui/confirm-dialog/confirm.service';
 import {
@@ -55,6 +57,7 @@ const EDGE_TO_EDGE_SCROLL_OFFSET = 62;
  * stamps that grow (in world units) when zooming out further. Only crossing a threshold restyles
  * the canvas, so zooming stays smooth.
  */
+
 const ZOOM_LEVELS = [
   { level: 'far', below: 0.18 },
   { level: 'mid', below: 0.4 },
@@ -139,6 +142,23 @@ export class GraphComponent {
       percent: relevant.length ? Math.round((watched / relevant.length) * 100) : 0,
     };
   });
+
+  /** Everything about the hovered title besides its name, e.g. "Season 1 · 2015 · Disney+". */
+  protected readonly tooltipDetails = computed(() => {
+    const node = this.hoveredNode()?.data;
+    if (!node) return '';
+    const t = this.translate.translations;
+    return [
+      episodeInfo(node, t),
+      node.year,
+      node.whereToWatch,
+      node.duration ? `${node.duration.slice(0, 5)} ${t.graph_hours()}` : undefined,
+    ]
+      .filter(Boolean)
+      .join(' · ');
+  });
+
+  protected readonly title = (node: ApiGraphNode) => fullTitle(node, this.translate.translations);
 
   protected readonly tooltip = computed(() => {
     const node = this.hoveredNode();

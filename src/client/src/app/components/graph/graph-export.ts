@@ -1,4 +1,4 @@
-import { ApiGraphNodeStatus } from '../../api/models';
+import { ApiGraphNode, ApiGraphNodeStatus } from '../../api/models';
 import { GraphLayout, LayoutNode } from './graph-layout';
 
 export const EXPORT_FORMATS = ['svg', 'png', 'jpeg'] as const;
@@ -22,6 +22,8 @@ export type SvgContent = {
   images: ReadonlyMap<string, string>;
   /** Text of the label on the title being watched. */
   watchingLabel: string;
+  /** The full title of a node, shown by SVG viewers on hover. */
+  title: (node: ApiGraphNode) => string;
 };
 
 type Palette = {
@@ -158,7 +160,7 @@ function nodeSvg(
   const y = offset(node.position.y);
   const { width, height } = node.dimension;
   const status = node.data.status;
-  const parts: string[] = [`<g><title>${escapeXml(node.label)}</title>`];
+  const parts: string[] = [`<g><title>${escapeXml(content.title(node.data))}</title>`];
 
   // Glow behind the title being watched.
   if (showStatus && status === 'watching') {
