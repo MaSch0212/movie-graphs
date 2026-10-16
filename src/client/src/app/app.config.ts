@@ -5,6 +5,7 @@ import { provideRouter } from '@angular/router';
 import { provideApi } from './api/services';
 import { routes } from './app.routes';
 import { ThemeService } from './theme/theme.service';
+import { rememberLastPage } from './utils/last-page';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -13,5 +14,6 @@ export const appConfig: ApplicationConfig = {
     provideApi({ rootUrl: '' }),
     // Keeps the browser's bar color in sync with the chosen theme on every page.
     provideAppInitializer(() => void inject(ThemeService)),
+    provideAppInitializer(rememberLastPage),
   ],
 };

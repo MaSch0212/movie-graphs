@@ -1,10 +1,13 @@
 import { Routes } from '@angular/router';
 
+import { startPage } from './utils/last-page';
+
 export const routes: Routes = [
   {
+    // The start URL of the home screen app.
     path: '',
     pathMatch: 'full',
-    redirectTo: '/home',
+    redirectTo: () => startPage(),
   },
   {
     path: 'home',
