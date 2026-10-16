@@ -2,11 +2,6 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine
 
 ARG BUILDTIME=Unknown
 
-# Install the ICU package
-RUN apk update
-RUN apk add --no-cache icu-libs
-RUN apk add --no-cache icu-data-full
-
 WORKDIR /app
 EXPOSE 80
 
