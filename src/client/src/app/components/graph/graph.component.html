@@ -148,8 +148,8 @@
         class="shrink-0"
         icon="icon-[mdi--dots-vertical]"
         [label]="t.graph_more()"
-        (openChange)="languageMenuShown.set(false)">
-        @if (!languageMenuShown()) {
+        (openChange)="submenu.set(null)">
+        @if (!submenu()) {
           <button type="button" role="menuitem" class="menu-item" (click)="nodeDialog.open()">
             <span class="icon-[mdi--plus]"></span>
             {{ t.graph_addTitle() }}
@@ -198,8 +198,21 @@
             class="menu-item"
             aria-haspopup="menu"
             data-keep-open
-            (click)="languageMenuShown.set(true); moreMenu.focusFirst()"
-            (keydown.arrowRight)="languageMenuShown.set(true); moreMenu.focusFirst()">
+            (click)="submenu.set('theme'); moreMenu.focusFirst()"
+            (keydown.arrowRight)="submenu.set('theme'); moreMenu.focusFirst()">
+            <span class="icon-[mdi--theme-light-dark]"></span>
+            <span class="grow">{{ t.theme_title() }}</span>
+            <span class="text-xs text-muted">{{ currentThemeName() }}</span>
+            <span class="icon-[mdi--chevron-right] text-muted"></span>
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            class="menu-item"
+            aria-haspopup="menu"
+            data-keep-open
+            (click)="submenu.set('language'); moreMenu.focusFirst()"
+            (keydown.arrowRight)="submenu.set('language'); moreMenu.focusFirst()">
             <span class="icon-[mdi--translate]"></span>
             <span class="grow">{{ t.common_language() }}</span>
             <span class="text-xs text-muted">{{ currentLanguageName() }}</span>
@@ -220,13 +233,17 @@
             role="menuitem"
             class="menu-item font-medium"
             data-keep-open
-            (click)="languageMenuShown.set(false); moreMenu.focusFirst()"
-            (keydown.arrowLeft)="languageMenuShown.set(false); moreMenu.focusFirst()">
+            (click)="submenu.set(null); moreMenu.focusFirst()"
+            (keydown.arrowLeft)="submenu.set(null); moreMenu.focusFirst()">
             <span class="icon-[mdi--chevron-left] text-muted"></span>
-            {{ t.common_language() }}
+            {{ submenu() === 'theme' ? t.theme_title() : t.common_language() }}
           </button>
           <div class="menu-separator" role="separator"></div>
-          <app-language-options />
+          @if (submenu() === 'theme') {
+            <app-theme-options />
+          } @else {
+            <app-language-options />
+          }
         }
       </app-menu>
     </header>

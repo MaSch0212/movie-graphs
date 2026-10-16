@@ -1,7 +1,17 @@
 @import 'tailwindcss';
 @plugin '@iconify/tailwind4';
 
-@custom-variant dark (@media (prefers-color-scheme: dark));
+/* The theme chosen in the app, otherwise the system's. */
+@custom-variant dark {
+  &:where([data-theme='dark'], [data-theme='dark'] *) {
+    @slot;
+  }
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme='light']), :root:not([data-theme='light']) *) {
+      @slot;
+    }
+  }
+}
 /* Screens with little height, e.g. phones in landscape. */
 @custom-variant short (@media (height < 30rem));
 
@@ -25,43 +35,37 @@
 }
 
 :root {
+  /* Follows the system, unless a theme is chosen (data-theme, see ThemeService). */
   color-scheme: light dark;
 
-  --canvas: oklch(0.975 0.004 270);
-  --canvas-dot: oklch(0.85 0.01 270);
-  --surface: oklch(1 0 0 / 0.78);
-  --surface-raised: oklch(1 0 0);
-  --line: oklch(0.9 0.008 270);
-  --fg: oklch(0.22 0.02 270);
-  --muted: oklch(0.52 0.02 270);
-  --accent: oklch(0.58 0.2 277);
-  --accent-strong: oklch(0.55 0.23 300);
+  --canvas: light-dark(oklch(0.975 0.004 270), oklch(0.17 0.012 270));
+  --canvas-dot: light-dark(oklch(0.85 0.01 270), oklch(0.3 0.015 270));
+  --surface: light-dark(oklch(1 0 0 / 0.78), oklch(0.23 0.015 270 / 0.72));
+  --surface-raised: light-dark(oklch(1 0 0), oklch(0.25 0.016 270));
+  --line: light-dark(oklch(0.9 0.008 270), oklch(1 0 0 / 0.09));
+  --fg: light-dark(oklch(0.22 0.02 270), oklch(0.95 0.005 270));
+  --muted: light-dark(oklch(0.52 0.02 270), oklch(0.7 0.015 270));
+  --accent: light-dark(oklch(0.58 0.2 277), oklch(0.68 0.17 277));
+  --accent-strong: light-dark(oklch(0.55 0.23 300), oklch(0.65 0.21 300));
   --accent-fg: oklch(1 0 0);
-  --danger: oklch(0.6 0.21 25);
-  --watched: oklch(0.68 0.17 152);
-  --watching: oklch(0.58 0.23 262);
-  --ignored: oklch(0.62 0.01 270);
+  --danger: light-dark(oklch(0.6 0.21 25), oklch(0.68 0.19 25));
+  --watched: light-dark(oklch(0.68 0.17 152), oklch(0.74 0.17 152));
+  --watching: light-dark(oklch(0.58 0.23 262), oklch(0.64 0.22 262));
+  --ignored: light-dark(oklch(0.62 0.01 270), oklch(0.6 0.01 270));
   /* Opaque, so arrow heads and crossing lines don't show darker overlaps. */
   --edge: color-mix(in oklch, var(--accent) 60%, var(--canvas));
   --shadow: 0 10px 30px -12px oklch(0.3 0.05 270 / 0.25);
 }
-
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  /* Shadows can't use light-dark(), it only works for colors. */
+  --shadow: 0 16px 40px -16px oklch(0 0 0 / 0.7);
+}
 @media (prefers-color-scheme: dark) {
-  :root {
-    --canvas: oklch(0.17 0.012 270);
-    --canvas-dot: oklch(0.3 0.015 270);
-    --surface: oklch(0.23 0.015 270 / 0.72);
-    --surface-raised: oklch(0.25 0.016 270);
-    --line: oklch(1 0 0 / 0.09);
-    --fg: oklch(0.95 0.005 270);
-    --muted: oklch(0.7 0.015 270);
-    --accent: oklch(0.68 0.17 277);
-    --accent-strong: oklch(0.65 0.21 300);
-    --accent-fg: oklch(1 0 0);
-    --danger: oklch(0.68 0.19 25);
-    --watched: oklch(0.74 0.17 152);
-    --watching: oklch(0.64 0.22 262);
-    --ignored: oklch(0.6 0.01 270);
+  :root:not([data-theme='light']) {
     --shadow: 0 16px 40px -16px oklch(0 0 0 / 0.7);
   }
 }

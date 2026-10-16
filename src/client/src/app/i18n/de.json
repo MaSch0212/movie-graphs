@@ -11,6 +11,12 @@
     "systemLanguage": "System",
     "typeToConfirm": "Gib {{ text }} zur Bestätigung ein"
   },
+  "theme": {
+    "title": "Design",
+    "system": "System",
+    "light": "Hell",
+    "dark": "Dunkel"
+  },
   "home": {
     "tagline": "Plane, was du als Nächstes schaust – in der richtigen Reihenfolge.",
     "openGraph": "Graph öffnen",

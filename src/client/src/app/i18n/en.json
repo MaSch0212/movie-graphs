@@ -11,6 +11,12 @@
     "systemLanguage": "System",
     "typeToConfirm": "Type {{ text }} to confirm"
   },
+  "theme": {
+    "title": "Theme",
+    "system": "System",
+    "light": "Light",
+    "dark": "Dark"
+  },
   "home": {
     "tagline": "Plan what to watch next — in the right order.",
     "openGraph": "Open a graph",

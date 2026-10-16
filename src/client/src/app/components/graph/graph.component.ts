@@ -20,6 +20,7 @@ import { produce } from 'immer';
 import { ApiGraphNode } from '../../api/models';
 import { GraphsService } from '../../api/services';
 import { TranslateService } from '../../i18n/translate.service';
+import { ThemeService } from '../../theme/theme.service';
 import { episodeInfo, fullTitle, posterTitle } from '../../utils/node-title';
 import { forgetRecentGraph, rememberRecentGraph } from '../../utils/recent-graphs';
 import { ConfirmService } from '../ui/confirm-dialog/confirm.service';
@@ -28,6 +29,10 @@ import {
   LanguageOptionsComponent,
 } from '../ui/language-switcher/language-options.component';
 import { MenuComponent } from '../ui/menu/menu.component';
+import {
+  currentThemeName,
+  ThemeOptionsComponent,
+} from '../ui/theme-switcher/theme-options.component';
 import { CopyGraphDialogComponent } from './copy-graph-dialog/copy-graph-dialog.component';
 import { ExportImageDialogComponent } from './export-image-dialog/export-image-dialog.component';
 import { computeGraphLayout, EMPTY_LAYOUT, GraphLayout, LayoutNode } from './graph-layout';
@@ -76,6 +81,7 @@ const ZOOM_LEVELS = [
     LanguageOptionsComponent,
     MenuComponent,
     RouterLink,
+    ThemeOptionsComponent,
     UpNextPanelComponent,
   ],
   templateUrl: './graph.component.html',
@@ -89,6 +95,7 @@ export class GraphComponent {
   private readonly _router = inject(Router);
   private readonly _confirmService = inject(ConfirmService);
   protected readonly translate = inject(TranslateService);
+  private readonly _theme = inject(ThemeService);
   private readonly _routeParams = toSignal(inject(ActivatedRoute).params);
 
   private readonly _viewport = viewChild<ElementRef<HTMLElement>>('viewport');
@@ -137,9 +144,12 @@ export class GraphComponent {
   /** A short message shown at the top of the screen. */
   protected readonly notice = signal<{ text: string; error?: boolean } | undefined>(undefined);
   private _noticeTimer?: ReturnType<typeof setTimeout>;
-  /** Whether the "More" menu shows the language choices instead of its main items. */
-  protected readonly languageMenuShown = signal(false);
+  /** The choices the "More" menu shows instead of its main items. */
+  protected readonly submenu = signal<'language' | 'theme' | null>(null);
   protected readonly currentLanguageName = computed(() => currentLanguageName(this.translate));
+  protected readonly currentThemeName = computed(() =>
+    currentThemeName(this.translate, this._theme)
+  );
 
   protected readonly stats = computed(() => {
     const nodes = this.graph.value()?.graph.nodes ?? [];
