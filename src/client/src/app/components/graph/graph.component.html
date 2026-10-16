@@ -31,7 +31,7 @@
 
     <div
       #content
-      class="absolute top-0 left-0 origin-top-left"
+      class="graph-content absolute top-0 left-0 origin-top-left"
       [style.width.px]="layout().bounds.width"
       [style.height.px]="layout().bounds.height">
       <svg
@@ -52,7 +52,8 @@
       @for (node of layout().nodes; track node.id) {
         <button
           type="button"
-          class="group absolute cursor-pointer rounded-[10px] bg-surface-raised outline-none"
+          class="node group absolute cursor-pointer rounded-[10px] bg-surface-raised outline-none"
+          [attr.data-status]="node.data.status"
           [style.left.px]="node.position.x"
           [style.top.px]="node.position.y"
           [style.width.px]="node.dimension.width"
@@ -62,38 +63,36 @@
           (pointerenter)="$event.pointerType === 'mouse' && hoveredNode.set(node)"
           (pointerleave)="hoveredNode.set(undefined)">
           <img
-            class="pointer-events-none size-full rounded-[10px] object-cover [-webkit-user-drag:none]"
+            class="node-poster pointer-events-none size-full rounded-[10px] object-cover [-webkit-user-drag:none]"
             alt=""
             loading="lazy"
             decoding="async"
             draggable="false"
-            [src]="thumbnailUrl(node.data.imageUrl)"
-            [class.opacity-55]="node.data.status === 'watched'"
-            [class.opacity-30]="node.data.status === 'ignored'"
-            [class.grayscale]="node.data.status === 'ignored'" />
-          <span
-            class="pointer-events-none absolute -inset-[3px] rounded-[13px] border-3 border-accent opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"></span>
-
-          @switch (node.data.status) {
-            @case ('watched') {
-              <span
-                class="absolute top-1 right-1 grid size-6.5 place-items-center rounded-full border-2 border-surface-raised bg-watched text-sm text-white">
-                <span class="icon-[mdi--check-bold]"></span>
-              </span>
-            }
-            @case ('watching') {
-              <span
-                class="absolute top-1 right-1 grid size-6.5 place-items-center rounded-full border-2 border-surface-raised bg-watching text-sm text-white">
+            [src]="thumbnailUrl(node.data.imageUrl)" />
+          @if (node.data.status !== 'unwatched') {
+            <span class="node-ring" aria-hidden="true"></span>
+            <span class="node-mark" aria-hidden="true">
+              @switch (node.data.status) {
+                @case ('watched') {
+                  <span class="icon-[mdi--check-bold]"></span>
+                }
+                @case ('watching') {
+                  <span class="icon-[mdi--play]"></span>
+                }
+                @case ('ignored') {
+                  <span class="icon-[mdi--skip-next]"></span>
+                }
+              }
+            </span>
+            @if (node.data.status === 'watching') {
+              <span class="node-band" aria-hidden="true">
                 <span class="icon-[mdi--play]"></span>
-              </span>
-            }
-            @case ('ignored') {
-              <span
-                class="absolute top-1 right-1 grid size-6.5 place-items-center rounded-full border-2 border-surface-raised bg-ignored text-sm text-white">
-                <span class="icon-[mdi--minus]"></span>
+                {{ t.status.watching }}
               </span>
             }
           }
+          <span
+            class="pointer-events-none absolute -inset-[3px] rounded-[13px] border-3 border-accent opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"></span>
         </button>
       }
     </div>

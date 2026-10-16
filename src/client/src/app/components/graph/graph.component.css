@@ -1,0 +1,145 @@
+/*
+ * Status of the titles in the graph (data-zoom is set while rendering):
+ * - near: the posters are readable, the status is shown as a colored frame and a small badge.
+ * - mid / far: the posters are too small to be recognized, so done titles get a colored veil with
+ *   a big mark that grows (in world units) when zooming out further.
+ */
+.graph-content {
+  --stamp-scale: 1.3;
+  --ring-width: 3px;
+}
+.graph-content[data-zoom='far'] {
+  --stamp-scale: 1.9;
+}
+
+.node {
+  --status-color: transparent;
+}
+.node[data-status='watched'] {
+  --status-color: var(--watched);
+}
+.node[data-status='watching'] {
+  --status-color: var(--watching);
+  /* The title being watched stands out with a thicker frame. */
+  --ring-width: 5px;
+}
+.node[data-status='ignored'] {
+  --status-color: var(--ignored);
+}
+
+.node-ring,
+.node-mark,
+.node-band {
+  position: absolute;
+  pointer-events: none;
+}
+.node-ring {
+  inset: 0;
+  border-radius: 10px;
+}
+
+.node-mark {
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--surface-raised);
+  border-radius: 9999px;
+  background: var(--status-color);
+  color: white;
+}
+
+/* Label at the bottom of the title being watched. */
+.node-band {
+  display: flex;
+  bottom: 0;
+  inset-inline: 0;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding-block: 3px;
+  border-radius: 0 0 10px 10px;
+  background: var(--watching);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.node[data-status='watching'] .node-ring {
+  box-shadow:
+    0 0 0 var(--ring-width) var(--watching),
+    0 0 calc(var(--ring-width) * 4) calc(var(--ring-width) * 2)
+      color-mix(in oklch, var(--watching) 60%, transparent);
+}
+.node[data-status='watching'] .node-mark {
+  display: none;
+}
+
+.node[data-status='ignored'] .node-poster {
+  opacity: 0.3;
+  filter: grayscale(1);
+}
+
+/* --- near: frames and small badges --- */
+.graph-content[data-zoom='near'] {
+  .node-mark {
+    top: 4px;
+    right: 4px;
+    width: 26px;
+    height: 26px;
+    font-size: 14px;
+  }
+  .node[data-status='watched'] {
+    .node-poster {
+      opacity: 0.7;
+    }
+    .node-ring {
+      box-shadow: 0 0 0 var(--ring-width) var(--watched);
+    }
+  }
+  .node[data-status='ignored'] .node-ring {
+    outline: var(--ring-width) dashed var(--ignored);
+  }
+}
+
+/* --- mid / far: veils with big marks --- */
+.graph-content:not([data-zoom='near']) {
+  .node-mark {
+    top: 50%;
+    left: 50%;
+    width: 44px;
+    height: 44px;
+    border-width: 3px;
+    font-size: 26px;
+    transform: translate(-50%, -50%) scale(var(--stamp-scale));
+    box-shadow: 0 4px 14px -4px oklch(0 0 0 / 0.5);
+  }
+  .node-band {
+    font-size: calc(10px * var(--stamp-scale));
+  }
+  .node[data-status='watching'] {
+    --ring-width: calc(5px * var(--stamp-scale));
+    .node-mark {
+      display: grid;
+    }
+    .node-band {
+      display: none;
+    }
+  }
+  :is(.node[data-status='watched'], .node[data-status='watching']) {
+    .node-poster {
+      filter: saturate(0.25) brightness(0.9);
+    }
+    .node-ring {
+      background: color-mix(in oklch, var(--status-color) 45%, transparent);
+    }
+  }
+  .node[data-status='ignored'] .node-ring {
+    background: repeating-linear-gradient(
+      -45deg,
+      color-mix(in oklch, var(--ignored) 55%, transparent) 0 6px,
+      transparent 6px 14px
+    );
+  }
+}

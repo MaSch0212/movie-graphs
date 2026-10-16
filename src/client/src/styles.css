@@ -36,8 +36,8 @@
   --accent-strong: oklch(0.55 0.23 300);
   --accent-fg: oklch(1 0 0);
   --danger: oklch(0.6 0.21 25);
-  --watched: oklch(0.68 0.16 160);
-  --watching: oklch(0.68 0.15 235);
+  --watched: oklch(0.68 0.17 152);
+  --watching: oklch(0.58 0.23 262);
   --ignored: oklch(0.62 0.01 270);
   /* Opaque, so arrow heads and crossing lines don't show darker overlaps. */
   --edge: color-mix(in oklch, var(--accent) 60%, var(--canvas));
@@ -57,8 +57,8 @@
     --accent-strong: oklch(0.65 0.21 300);
     --accent-fg: oklch(1 0 0);
     --danger: oklch(0.68 0.19 25);
-    --watched: oklch(0.74 0.15 160);
-    --watching: oklch(0.74 0.13 235);
+    --watched: oklch(0.74 0.17 152);
+    --watching: oklch(0.64 0.22 262);
     --ignored: oklch(0.6 0.01 270);
     --shadow: 0 16px 40px -16px oklch(0 0 0 / 0.7);
   }

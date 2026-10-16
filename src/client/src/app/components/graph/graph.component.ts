@@ -47,11 +47,21 @@ const THUMBNAIL_WIDTH = 400;
  * screen app. The graph itself is fixed, so the offset is not visible.
  */
 const EDGE_TO_EDGE_SCROLL_OFFSET = 62;
+/**
+ * Below these scales the posters are too small to be recognized, so their status is shown as big
+ * stamps that grow (in world units) when zooming out further. Only crossing a threshold restyles
+ * the canvas, so zooming stays smooth.
+ */
+const ZOOM_LEVELS = [
+  { level: 'far', below: 0.18 },
+  { level: 'mid', below: 0.4 },
+] as const;
 
 @Component({
   selector: 'app-graph',
   imports: [GraphNodeDialogComponent, LanguageOptionsComponent, MenuComponent, RouterLink],
   templateUrl: './graph.component.html',
+  styleUrl: './graph.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block' },
 })
@@ -85,6 +95,7 @@ export class GraphComponent {
   private _layoutGraphId?: string;
   private _initializedGraphId?: string;
   private _pendingPanToNodeId?: string;
+  private _zoomLevel?: string;
 
   protected readonly graph = resource({
     params: () => this._graphId(),
@@ -263,6 +274,11 @@ export class GraphComponent {
     const { x, y, k } = transform;
 
     content.style.transform = `translate3d(${x}px, ${y}px, 0) scale(${k})`;
+    const zoomLevel = ZOOM_LEVELS.find(level => k < level.below)?.level ?? 'near';
+    if (zoomLevel !== this._zoomLevel) {
+      this._zoomLevel = zoomLevel;
+      content.dataset['zoom'] = zoomLevel;
+    }
 
     // The dots move with the canvas and get spaced out in steps so they never get too dense.
     let spacing = DOT_SPACING * k;
