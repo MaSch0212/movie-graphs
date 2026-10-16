@@ -53,7 +53,7 @@
         <button
           type="button"
           class="node group absolute cursor-pointer rounded-[10px] bg-surface-raised outline-none"
-          [attr.data-status]="node.data.status"
+          [attr.data-status]="showStatus() ? node.data.status : null"
           [style.left.px]="node.position.x"
           [style.top.px]="node.position.y"
           [style.width.px]="node.dimension.width"
@@ -78,7 +78,7 @@
               }
             </span>
           }
-          @if (node.data.status !== 'unwatched') {
+          @if (showStatus() && node.data.status !== 'unwatched') {
             <span class="node-ring" aria-hidden="true"></span>
             <span class="node-mark" aria-hidden="true">
               @switch (node.data.status) {
@@ -153,6 +153,7 @@
             <span class="icon-[mdi--plus]"></span>
             {{ t.graph_addTitle() }}
           </button>
+          <div class="menu-separator" role="separator"></div>
           <button type="button" role="menuitem" class="menu-item" (click)="copyUrl()">
             <span class="icon-[mdi--link-variant]"></span>
             {{ t.graph_copyLink() }}
@@ -169,6 +170,7 @@
             <span class="icon-[mdi--image-outline]"></span>
             {{ t.graph_downloadImage() }}
           </button>
+          <div class="menu-separator" role="separator"></div>
           <button
             type="button"
             role="menuitemcheckbox"
@@ -178,6 +180,16 @@
             <span class="icon-[mdi--format-title]"></span>
             <span class="grow">{{ t.graph_showTitles() }}</span>
             <span class="icon-[mdi--check] text-accent" [class.invisible]="!showTitles()"></span>
+          </button>
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            class="menu-item"
+            [attr.aria-checked]="showStatus()"
+            (click)="toggle(showStatus, SHOW_STATUS_KEY)">
+            <span class="icon-[mdi--check-circle-outline]"></span>
+            <span class="grow">{{ t.graph_showStatus() }}</span>
+            <span class="icon-[mdi--check] text-accent" [class.invisible]="!showStatus()"></span>
           </button>
           <button
             type="button"

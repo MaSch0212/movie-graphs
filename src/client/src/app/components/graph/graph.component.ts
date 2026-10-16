@@ -59,6 +59,7 @@ const EDGE_TO_EDGE_SCROLL_OFFSET = 62;
  * the canvas, so zooming stays smooth.
  */
 const SHOW_TITLES_KEY = 'movie-graphs.show-titles';
+const SHOW_STATUS_KEY = 'movie-graphs.show-status';
 
 const ZOOM_LEVELS = [
   { level: 'far', below: 0.18 },
@@ -162,8 +163,11 @@ export class GraphComponent {
 
   // Display options, remembered on this device.
   protected readonly SHOW_TITLES_KEY = SHOW_TITLES_KEY;
+  protected readonly SHOW_STATUS_KEY = SHOW_STATUS_KEY;
   /** Whether the titles are shown on the posters. */
   protected readonly showTitles = signal(loadFlag(SHOW_TITLES_KEY, false));
+  /** Whether frames, badges and stamps show the watch status of the titles. */
+  protected readonly showStatus = signal(loadFlag(SHOW_STATUS_KEY, true));
   /** What the posters show when titles are shown: the (short) title and season / episodes. */
   protected readonly posterTitles = computed(() => {
     const t = this.translate.translations;

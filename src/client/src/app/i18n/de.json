@@ -40,6 +40,7 @@
     "copyGraph": "Graph kopieren",
     "downloadImage": "Als Bild herunterladen",
     "showTitles": "Titel anzeigen",
+    "showStatus": "Status anzeigen",
     "deleteGraph": "Graph löschen",
     "deleteConfirmTitle": "Graph löschen?",
     "deleteConfirmMessage": "„{{ name }}“ und alle Titel darin werden für alle mit dem Link gelöscht. Das kann nicht rückgängig gemacht werden.",
