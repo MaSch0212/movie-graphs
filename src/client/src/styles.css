@@ -2,6 +2,8 @@
 @plugin '@iconify/tailwind4';
 
 @custom-variant dark (@media (prefers-color-scheme: dark));
+/* Screens with little height, e.g. phones in landscape. */
+@custom-variant short (@media (height < 30rem));
 
 /* Semantic color tokens. The actual values are defined below for light and dark mode. */
 @theme inline {

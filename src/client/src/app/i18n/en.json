@@ -46,6 +46,16 @@
     "deleteConfirmMessage": "\"{{ name }}\" and all of its titles will be deleted for everyone with the link. This cannot be undone.",
     "deleteFailed": "Deleting the graph failed. Please try again."
   },
+  "upNext": {
+    "title": "Up next",
+    "ready": "Ready to watch",
+    "startWatching": "Start watching",
+    "markWatched": "Mark as watched",
+    "skip": "Skip",
+    "showInGraph": "Show in graph",
+    "allDone": "Nothing left to watch – everything is watched or skipped.",
+    "failed": "The status could not be changed. Please try again."
+  },
   "copyGraph": {
     "title": "Copy graph",
     "name": "Name of the copy",

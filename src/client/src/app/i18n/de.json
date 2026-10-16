@@ -46,6 +46,16 @@
     "deleteConfirmMessage": "„{{ name }}“ und alle Titel darin werden für alle mit dem Link gelöscht. Das kann nicht rückgängig gemacht werden.",
     "deleteFailed": "Der Graph konnte nicht gelöscht werden. Bitte versuche es erneut."
   },
+  "upNext": {
+    "title": "Als Nächstes",
+    "ready": "Bereit zum Schauen",
+    "startWatching": "Anfangen zu schauen",
+    "markWatched": "Als gesehen markieren",
+    "skip": "Auslassen",
+    "showInGraph": "Im Graph zeigen",
+    "allDone": "Nichts mehr offen – alles ist gesehen oder ausgelassen.",
+    "failed": "Der Status konnte nicht geändert werden. Bitte versuche es erneut."
+  },
   "copyGraph": {
     "title": "Graph kopieren",
     "name": "Name der Kopie",

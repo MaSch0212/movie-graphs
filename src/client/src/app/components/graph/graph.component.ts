@@ -36,6 +36,7 @@ import {
   NodeChangeEvent,
 } from './graph-node-dialog/graph-node-dialog.component';
 import { bindPanZoom, PanZoomController, Size, ViewTransform } from './pan-zoom';
+import { UpNextPanelComponent } from './up-next-panel/up-next-panel.component';
 
 const MIN_ZOOM = 0.03;
 const MAX_ZOOM = 4;
@@ -75,6 +76,7 @@ const ZOOM_LEVELS = [
     LanguageOptionsComponent,
     MenuComponent,
     RouterLink,
+    UpNextPanelComponent,
   ],
   templateUrl: './graph.component.html',
   styleUrl: './graph.component.css',
@@ -90,6 +92,7 @@ export class GraphComponent {
   private readonly _routeParams = toSignal(inject(ActivatedRoute).params);
 
   private readonly _viewport = viewChild<ElementRef<HTMLElement>>('viewport');
+  private readonly _upNextPanel = viewChild(UpNextPanelComponent);
   private readonly _content = viewChild<ElementRef<HTMLElement>>('content');
   private readonly _dots = viewChild<ElementRef<HTMLElement>>('dots');
   private readonly _graphId = computed(() => String(this._routeParams()?.['id'] ?? ''));
@@ -128,6 +131,9 @@ export class GraphComponent {
   protected readonly graphName = computed(() => this.graph.value()?.graph.name);
   protected readonly layout = signal<GraphLayout>(EMPTY_LAYOUT);
   protected readonly hoveredNode = signal<LayoutNode | undefined>(undefined);
+  /** A title that was picked to be shown, briefly highlighted. */
+  protected readonly highlightedNodeId = signal<string | undefined>(undefined);
+  private _highlightTimer?: ReturnType<typeof setTimeout>;
   /** A short message shown at the top of the screen. */
   protected readonly notice = signal<{ text: string; error?: boolean } | undefined>(undefined);
   private _noticeTimer?: ReturnType<typeof setTimeout>;
@@ -277,6 +283,28 @@ export class GraphComponent {
       // The whole graph is readable at once.
       this._panZoom.fit(bounds, size, FIT_PADDING, animate);
     }
+  }
+
+  /** Moves the view to a title, readable, and highlights it briefly. */
+  protected showNode(data: ApiGraphNode) {
+    const viewport = this._viewport()?.nativeElement;
+    const node = this.layout().nodes.find(x => x.id === data.id);
+    if (!viewport || !node) return;
+    const k = Math.max(this._panZoom.transform.k, READABLE_ZOOM);
+    // Centered in the part of the graph that the "Up next" panel doesn't cover.
+    const covered = this._upNextPanel()?.coveredWidth() ?? 0;
+    const center = this.center(node);
+    this._panZoom.centerOn(
+      { x: center.x - covered / 2 / k, y: center.y },
+      this.visibleViewport(viewport),
+      true,
+      k
+    );
+    clearTimeout(this._highlightTimer);
+    this.highlightedNodeId.set(undefined);
+    // Restarts the animation when the same title is picked again.
+    requestAnimationFrame(() => this.highlightedNodeId.set(node.id));
+    this._highlightTimer = setTimeout(() => this.highlightedNodeId.set(undefined), 2000);
   }
 
   protected onNodeChange(event: NodeChangeEvent) {
