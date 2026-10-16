@@ -2,6 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  afterRenderEffect,
   computed,
   ElementRef,
   inject,
@@ -61,6 +62,13 @@ export class UpNextPanelComponent {
   public readonly count = computed(
     () => this.upNext().watching.length + this.upNext().ready.length
   );
+
+  constructor() {
+    afterRenderEffect(() => {
+      const panel = this._panel()?.nativeElement;
+      if (panel && !panel.matches(':popover-open')) panel.showPopover();
+    });
+  }
 
   /** How much of the graph the panel covers from the left, 0 when it is closed or full screen. */
   public coveredWidth() {

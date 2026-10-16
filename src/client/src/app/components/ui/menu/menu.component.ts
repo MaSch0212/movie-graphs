@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
+  afterRenderEffect,
   inject,
   input,
   output,
@@ -41,13 +42,12 @@ const ITEM_SELECTOR = '[role="menuitem"], [role="menuitemradio"]';
       </button>
 
       @if (open()) {
+        <!-- A popover, so it is shown in the top layer above everything else on the page. -->
         <div
           #panel
           role="menu"
-          class="glass absolute z-20 min-w-56 rounded-2xl bg-surface-raised p-1.5"
-          [class]="placement() === 'above' ? 'bottom-full mb-2' : 'top-full mt-2'"
-          [class.right-0]="align() === 'end'"
-          [class.left-1/2]="align() === 'center'"
+          popover="manual"
+          class="glass fixed m-0 min-w-56 rounded-2xl bg-surface-raised p-1.5 text-fg"
           [class.-translate-x-1/2]="align() === 'center'"
           [attr.aria-label]="label()"
           (keydown)="onMenuKeyDown($event)"
@@ -58,7 +58,10 @@ const ITEM_SELECTOR = '[role="menuitem"], [role="menuitemradio"]';
     </div>
   `,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { '(document:pointerdown)': 'onDocumentPointerDown($event)' },
+  host: {
+    '(document:pointerdown)': 'onDocumentPointerDown($event)',
+    '(window:resize)': 'close()',
+  },
 })
 export class MenuComponent {
   private readonly _host = inject<ElementRef<HTMLElement>>(ElementRef);
@@ -80,6 +83,33 @@ export class MenuComponent {
 
   /** Emits when the menu is opened or closed. */
   public readonly openChange = output<boolean>();
+
+  constructor() {
+    afterRenderEffect(() => {
+      const panel = this._panel()?.nativeElement;
+      if (!panel || panel.matches(':popover-open')) return;
+      this.position(panel);
+      panel.showPopover();
+    });
+  }
+
+  /** Places the menu next to the trigger; in the top layer it isn't positioned by its parent. */
+  private position(panel: HTMLElement) {
+    const trigger = this._trigger().nativeElement.getBoundingClientRect();
+    const gap = 8;
+    const { style } = panel;
+    style.inset = 'auto';
+    if (this.placement() === 'above') {
+      style.bottom = `${window.innerHeight - trigger.top + gap}px`;
+    } else {
+      style.top = `${trigger.bottom + gap}px`;
+    }
+    if (this.align() === 'center') {
+      style.left = `${trigger.left + trigger.width / 2}px`;
+    } else {
+      style.right = `${document.documentElement.clientWidth - trigger.right}px`;
+    }
+  }
 
   public close(focusTrigger = false) {
     if (!this.open()) return;
@@ -159,8 +189,11 @@ export class MenuComponent {
   }
 
   protected onFocusOut(event: FocusEvent) {
+    // Without a new focus target, the focused item was e.g. removed when switching to the sub menu.
+    // Outside clicks and Tab are handled separately.
+    if (!event.relatedTarget) return;
     const container = event.currentTarget as HTMLElement;
-    if (!container.contains(event.relatedTarget as Node | null)) {
+    if (!container.contains(event.relatedTarget as Node)) {
       this.close();
     }
   }
