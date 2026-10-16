@@ -78,10 +78,11 @@ export class UpNextPanelComponent {
   }
 
   protected details(node: ApiGraphNode) {
-    const t = this.translate.translations;
-    return [node.year, node.whereToWatch, formatDuration(node.duration, t)]
-      .filter(Boolean)
-      .join(' · ');
+    return [node.year, node.whereToWatch].filter(Boolean).join(' · ');
+  }
+
+  protected duration(node: ApiGraphNode) {
+    return formatDuration(node.duration, this.translate.translations);
   }
 
   protected episodes(node: ApiGraphNode) {

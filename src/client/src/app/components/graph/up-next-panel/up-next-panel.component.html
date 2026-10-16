@@ -90,6 +90,7 @@
         }}</span>
         @let episodeText = episodes(node);
         @let detailText = details(node);
+        @let durationText = duration(node);
         @if (episodeText) {
           <span class="mt-0.5 block truncate text-xs text-fg/80 short:hidden">{{
             episodeText
@@ -100,10 +101,24 @@
             detailText
           }}</span>
         }
-        <!-- Everything in one line on short screens. -->
+        <!-- On its own line, so a long "where to watch" doesn't push it out of view. -->
+        @if (durationText) {
+          <span class="mt-0.5 flex items-center gap-1 text-xs text-muted short:hidden">
+            <span class="icon-[mdi--clock-outline] shrink-0"></span>
+            <span class="truncate">{{ durationText }}</span>
+          </span>
+        }
+        <!-- Everything in one line on short screens, the duration before the longer details. -->
         <span class="mt-0.5 hidden truncate text-xs text-muted short:block">
           @if (episodeText) {
             <span class="text-fg/80">{{ episodeText }}</span>
+            @if (durationText || detailText) {
+              ·
+            }
+          }
+          @if (durationText) {
+            <span class="icon-[mdi--clock-outline] align-[-0.125em]"></span>
+            {{ durationText }}
             @if (detailText) {
               ·
             }
