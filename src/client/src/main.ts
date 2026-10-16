@@ -6,5 +6,5 @@ import { AppComponent } from './app/components/app/app.component';
 
 setAutoFreeze(false);
 
-// eslint-disable-next-line no-console
+// oxlint-disable-next-line no-console
 bootstrapApplication(AppComponent, appConfig).catch(err => console.error(err));

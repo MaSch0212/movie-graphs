@@ -1,0 +1,134 @@
+@import 'tailwindcss';
+@plugin '@iconify/tailwind4';
+
+@custom-variant dark (@media (prefers-color-scheme: dark));
+
+/* Semantic color tokens. The actual values are defined below for light and dark mode. */
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-line: var(--line);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --color-accent-fg: var(--accent-fg);
+  --color-danger: var(--danger);
+  --color-watched: var(--watched);
+  --color-watching: var(--watching);
+  --color-ignored: var(--ignored);
+  --font-sans:
+    'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+:root {
+  color-scheme: light dark;
+
+  --canvas: oklch(0.975 0.004 270);
+  --canvas-dot: oklch(0.85 0.01 270);
+  --surface: oklch(1 0 0 / 0.78);
+  --surface-raised: oklch(1 0 0);
+  --line: oklch(0.9 0.008 270);
+  --fg: oklch(0.22 0.02 270);
+  --muted: oklch(0.52 0.02 270);
+  --accent: oklch(0.58 0.2 277);
+  --accent-strong: oklch(0.55 0.23 300);
+  --accent-fg: oklch(1 0 0);
+  --danger: oklch(0.6 0.21 25);
+  --watched: oklch(0.68 0.16 160);
+  --watching: oklch(0.68 0.15 235);
+  --ignored: oklch(0.62 0.01 270);
+  --edge: oklch(0.58 0.2 277 / 0.55);
+  --shadow: 0 10px 30px -12px oklch(0.3 0.05 270 / 0.25);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --canvas: oklch(0.17 0.012 270);
+    --canvas-dot: oklch(0.3 0.015 270);
+    --surface: oklch(0.23 0.015 270 / 0.72);
+    --surface-raised: oklch(0.25 0.016 270);
+    --line: oklch(1 0 0 / 0.09);
+    --fg: oklch(0.95 0.005 270);
+    --muted: oklch(0.7 0.015 270);
+    --accent: oklch(0.68 0.17 277);
+    --accent-strong: oklch(0.65 0.21 300);
+    --accent-fg: oklch(1 0 0);
+    --danger: oklch(0.68 0.19 25);
+    --watched: oklch(0.74 0.15 160);
+    --watching: oklch(0.74 0.13 235);
+    --ignored: oklch(0.6 0.01 270);
+    --edge: oklch(0.72 0.14 277 / 0.5);
+    --shadow: 0 16px 40px -16px oklch(0 0 0 / 0.7);
+  }
+}
+
+@layer base {
+  html,
+  body {
+    @apply h-full bg-canvas font-sans text-fg antialiased;
+    /* The graph handles all touch gestures itself; this also stops iOS from zooming the page. */
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+
+  /* Form controls are styled explicitly, so don't let iOS zoom in when focusing them. */
+  input,
+  select,
+  textarea {
+    font-size: max(16px, 1em);
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-accent;
+  }
+}
+
+@layer components {
+  .glass {
+    @apply border border-line bg-surface backdrop-blur-xl backdrop-saturate-150;
+    box-shadow: var(--shadow);
+  }
+
+  .btn {
+    @apply inline-flex h-10 cursor-pointer items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium whitespace-nowrap transition select-none active:scale-[0.97] disabled:pointer-events-none disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply bg-linear-to-br from-accent to-accent-strong text-accent-fg shadow-md shadow-accent/25 hover:brightness-110;
+  }
+  .btn-secondary {
+    @apply border border-line bg-surface-raised hover:bg-fg/5;
+  }
+  .btn-ghost {
+    @apply text-fg hover:bg-fg/8;
+  }
+  .btn-danger {
+    @apply text-danger hover:bg-danger/10;
+  }
+  .btn-icon {
+    @apply size-10 rounded-full p-0 text-xl;
+  }
+
+  .field-label {
+    @apply mb-1.5 block text-xs font-medium tracking-wide text-muted uppercase;
+  }
+  .input {
+    @apply h-11 w-full rounded-xl border border-line bg-surface-raised px-3.5 text-fg transition outline-none placeholder:text-muted/70 focus:border-accent focus:ring-4 focus:ring-accent/20;
+  }
+  .field-error {
+    @apply mt-1.5 flex items-center gap-1 text-xs text-danger;
+  }
+}
+
+@utility canvas-dots {
+  background-color: var(--canvas);
+  background-image: radial-gradient(circle, var(--canvas-dot) 1px, transparent 1.2px);
+}
+
+@utility stroke-edge {
+  stroke: var(--edge);
+}
+@utility fill-edge {
+  fill: var(--edge);
+}
