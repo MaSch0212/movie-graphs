@@ -43,6 +43,7 @@ import {
   NodeChangeEvent,
 } from './graph-node-dialog/graph-node-dialog.component';
 import { bindPanZoom, PanZoomController, Size, ViewTransform } from './pan-zoom';
+import { StatsDialogComponent } from './stats-dialog/stats-dialog.component';
 import { UpNextPanelComponent } from './up-next-panel/up-next-panel.component';
 
 const MIN_ZOOM = 0.03;
@@ -84,6 +85,7 @@ const ZOOM_LEVELS = [
     LanguageOptionsComponent,
     MenuComponent,
     RouterLink,
+    StatsDialogComponent,
     ThemeOptionsComponent,
     UpNextPanelComponent,
   ],

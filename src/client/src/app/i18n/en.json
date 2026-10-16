@@ -48,6 +48,7 @@
     "resetViewLabel": "Reset view to the next title",
     "copyGraph": "Copy graph",
     "downloadImage": "Download as image",
+    "statistics": "Statistics",
     "showTitles": "Show titles",
     "showStatus": "Show status",
     "deleteGraph": "Delete graph",
@@ -64,6 +65,22 @@
     "showInGraph": "Show in graph",
     "allDone": "Nothing left to watch – everything is watched or skipped.",
     "failed": "The status could not be changed. Please try again."
+  },
+  "stats": {
+    "title": "Statistics",
+    "titles": "Titles",
+    "time": "Time",
+    "ofWatched": "{{ watched }} of {{ all }} watched",
+    "titlesLeft": "{{ count }} left",
+    "timeLeft": "{{ time }} left",
+    "byStatus": "By status",
+    "byType": "Movies and series",
+    "movies": "Movies",
+    "series": "Series",
+    "whereToWatch": "Where to watch what's left",
+    "unknownSource": "Unknown",
+    "withoutDuration": "Without a duration",
+    "notCounted": "Not counted in the time."
   },
   "copyGraph": {
     "title": "Copy graph",

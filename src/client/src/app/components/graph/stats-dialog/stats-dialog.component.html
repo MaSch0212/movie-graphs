@@ -1,0 +1,143 @@
+@let t = translate.translations;
+@let s = stats();
+<app-dialog [(open)]="visible" [title]="t.stats_title()">
+  <div class="flex flex-col gap-6 pt-1 pb-3">
+    <!-- How much is watched, by titles and by hours. -->
+    <div class="grid grid-cols-2 gap-3">
+      @for (by of byOptions; track by) {
+        @let shown = percent(s.watched, s.all, by);
+        <div class="rounded-2xl bg-fg/5 p-4">
+          <div class="text-xs text-muted">
+            {{ by === 'count' ? t.stats_titles() : t.stats_time() }}
+          </div>
+          <div class="mt-1 text-2xl font-semibold tabular-nums">{{ shown }}%</div>
+          <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-fg/10">
+            <div
+              class="h-full rounded-full bg-linear-to-r from-watched to-accent"
+              [style.width.%]="shown"></div>
+          </div>
+          <div class="mt-2 text-xs text-muted tabular-nums">
+            @if (by === 'count') {
+              <div>{{ t.stats_ofWatched({ watched: s.watched.count, all: s.all.count }) }}</div>
+              <div>{{ t.stats_titlesLeft({ count: s.left.count }) }}</div>
+            } @else {
+              <div>
+                {{
+                  t.stats_ofWatched({
+                    watched: hours(s.watched.minutes),
+                    all: hours(s.all.minutes),
+                  })
+                }}
+              </div>
+              <div>{{ t.stats_timeLeft({ time: hours(s.left.minutes) }) }}</div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+
+    <section>
+      <h3 class="menu-label px-0">{{ t.stats_byStatus() }}</h3>
+      <!-- All titles by status, as one bar. -->
+      <div class="mt-1 flex h-2.5 gap-0.5 overflow-hidden rounded-full">
+        @for (entry of statuses(); track entry.status) {
+          @if (entry.count) {
+            <div [class]="entry.color" [style.flex-grow]="entry.count"></div>
+          }
+        }
+      </div>
+      <ul class="mt-2">
+        @for (entry of statuses(); track entry.status) {
+          <li class="flex items-center gap-2.5 py-1.5 text-sm">
+            <span class="size-2.5 shrink-0 rounded-full" [class]="entry.color"></span>
+            <span class="grow">{{ t[`status_${entry.status}`]() }}</span>
+            <span class="text-muted tabular-nums">{{ duration(entry.minutes) }}</span>
+            <span class="w-10 text-right font-medium tabular-nums">{{ entry.count }}</span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    <section>
+      <h3 class="menu-label px-0">{{ t.stats_byType() }}</h3>
+      <ul>
+        @for (entry of types(); track entry.type) {
+          <li class="flex items-center gap-2.5 py-1.5 text-sm">
+            <span class="shrink-0 text-lg text-muted" [class]="entry.icon"></span>
+            <div class="min-w-0 grow">
+              <div class="flex items-baseline gap-2">
+                <span class="grow">
+                  {{ entry.type === 'movie' ? t.stats_movies() : t.stats_series() }}
+                </span>
+                <span class="text-xs text-muted tabular-nums">
+                  {{ duration(entry.watched.minutes) }} / {{ duration(entry.all.minutes) }}
+                </span>
+              </div>
+              <div class="mt-1 h-1 overflow-hidden rounded-full bg-fg/10">
+                <div
+                  class="h-full rounded-full bg-watched"
+                  [style.width.%]="percent(entry.watched, entry.all, 'minutes')"></div>
+              </div>
+            </div>
+            <span class="w-14 text-right font-medium tabular-nums">
+              {{ entry.watched.count }}/{{ entry.all.count }}
+            </span>
+          </li>
+        }
+      </ul>
+    </section>
+
+    @if (s.sources.length) {
+      <section>
+        <h3 class="menu-label px-0">{{ t.stats_whereToWatch() }}</h3>
+        <ul>
+          @for (source of s.sources; track source.name) {
+            <li class="flex items-center gap-2.5 py-1.5 text-sm">
+              <span
+                class="shrink-0 text-lg text-muted"
+                [class]="
+                  source.price !== undefined
+                    ? 'icon-[mdi--cart-outline]'
+                    : source.name
+                      ? 'icon-[mdi--play-box-outline]'
+                      : 'icon-[mdi--help-circle-outline]'
+                "></span>
+              <span class="min-w-0 grow truncate" [class.text-muted]="!source.name">
+                {{ source.name || t.stats_unknownSource() }}
+              </span>
+              @if (source.price !== undefined) {
+                <span class="text-xs font-medium tabular-nums">{{ price(source.price) }}</span>
+              }
+              <span class="text-muted tabular-nums">{{ duration(source.minutes) }}</span>
+              <span class="w-10 text-right font-medium tabular-nums">{{ source.count }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+
+    @if (s.withoutDuration.length) {
+      <section>
+        <h3 class="menu-label px-0">{{ t.stats_withoutDuration() }}</h3>
+        <p class="flex items-center gap-2 text-xs text-muted">
+          <span class="icon-[mdi--information-outline] shrink-0"></span>
+          {{ t.stats_notCounted() }}
+        </p>
+        <ul class="mt-1">
+          @for (node of s.withoutDuration; track node.id) {
+            <li class="flex items-center gap-2.5 py-1.5 text-sm">
+              <span
+                class="size-2.5 shrink-0 rounded-full"
+                [class]="statusColor(node.status)"
+                [title]="t[`status_${node.status}`]()"></span>
+              <span class="min-w-0 grow truncate">{{ title(node) }}</span>
+            </li>
+          }
+        </ul>
+      </section>
+    }
+  </div>
+  <button dialogFooter type="button" class="btn btn-primary ml-auto" (click)="visible.set(false)">
+    {{ t.common_close() }}
+  </button>
+</app-dialog>

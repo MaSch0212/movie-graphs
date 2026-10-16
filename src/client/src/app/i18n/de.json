@@ -48,6 +48,7 @@
     "resetViewLabel": "Ansicht auf den nächsten Titel zurücksetzen",
     "copyGraph": "Graph kopieren",
     "downloadImage": "Als Bild herunterladen",
+    "statistics": "Statistik",
     "showTitles": "Titel anzeigen",
     "showStatus": "Status anzeigen",
     "deleteGraph": "Graph löschen",
@@ -64,6 +65,22 @@
     "showInGraph": "Im Graph zeigen",
     "allDone": "Nichts mehr offen – alles ist gesehen oder ausgelassen.",
     "failed": "Der Status konnte nicht geändert werden. Bitte versuche es erneut."
+  },
+  "stats": {
+    "title": "Statistik",
+    "titles": "Titel",
+    "time": "Zeit",
+    "ofWatched": "{{ watched }} von {{ all }} gesehen",
+    "titlesLeft": "{{ count }} übrig",
+    "timeLeft": "{{ time }} übrig",
+    "byStatus": "Nach Status",
+    "byType": "Filme und Serien",
+    "movies": "Filme",
+    "series": "Serien",
+    "whereToWatch": "Wo der Rest läuft",
+    "unknownSource": "Unbekannt",
+    "withoutDuration": "Ohne Dauer",
+    "notCounted": "Zählen nicht zur Zeit."
   },
   "copyGraph": {
     "title": "Graph kopieren",

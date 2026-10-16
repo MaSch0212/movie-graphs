@@ -177,6 +177,11 @@
             {{ t.graph_downloadImage() }}
           </button>
           <div class="menu-separator" role="separator"></div>
+          <button type="button" role="menuitem" class="menu-item" (click)="statsDialog.open()">
+            <span class="icon-[mdi--chart-box-outline]"></span>
+            {{ t.graph_statistics() }}
+          </button>
+          <div class="menu-separator" role="separator"></div>
           <button
             type="button"
             role="menuitemcheckbox"
@@ -305,6 +310,7 @@
     #nodeDialog
     [graph]="graphValue.graph"
     (nodeChange)="onNodeChange($event)" />
+  <app-stats-dialog #statsDialog [nodes]="graphValue.graph.nodes" />
   <app-copy-graph-dialog #copyGraphDialog [graph]="graphValue.graph" />
   <app-export-image-dialog
     #exportImageDialog
