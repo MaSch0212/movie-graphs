@@ -17,7 +17,7 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { produce } from 'immer';
 
 import { GraphsService } from '../../api/services';
-import { I18nService } from '../../i18n/i18n.service';
+import { TranslateService } from '../../i18n/translate.service';
 import { rememberRecentGraph } from '../../utils/recent-graphs';
 import {
   currentLanguageName,
@@ -68,7 +68,7 @@ const ZOOM_LEVELS = [
 export class GraphComponent {
   private readonly _graphsService = inject(GraphsService);
   private readonly _document = inject(DOCUMENT);
-  protected readonly i18n = inject(I18nService);
+  protected readonly translate = inject(TranslateService);
   private readonly _routeParams = toSignal(inject(ActivatedRoute).params);
 
   private readonly _viewport = viewChild<ElementRef<HTMLElement>>('viewport');
@@ -113,7 +113,7 @@ export class GraphComponent {
   protected readonly linkCopied = signal(false);
   /** Whether the "More" menu shows the language choices instead of its main items. */
   protected readonly languageMenuShown = signal(false);
-  protected readonly currentLanguageName = computed(() => currentLanguageName(this.i18n));
+  protected readonly currentLanguageName = computed(() => currentLanguageName(this.translate));
 
   protected readonly stats = computed(() => {
     const nodes = this.graph.value()?.graph.nodes ?? [];

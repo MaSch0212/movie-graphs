@@ -1,4 +1,4 @@
-@let t = i18n.t();
+@let t = translate.translations;
 <div class="flex min-h-dvh items-center justify-center canvas-dots bg-size-[28px_28px] p-4">
   <main class="w-full max-w-md">
     <div class="mb-8 flex flex-col items-center text-center">
@@ -10,13 +10,13 @@
         height="80"
         class="size-20 rounded-[22.5%] shadow-lg shadow-accent/30"
         draggable="false" />
-      <h1 class="mt-4 text-3xl font-bold tracking-tight">{{ t.common.appName }}</h1>
-      <p class="mt-1 text-muted">{{ t.home.tagline }}</p>
+      <h1 class="mt-4 text-3xl font-bold tracking-tight">{{ t.common_appName() }}</h1>
+      <p class="mt-1 text-muted">{{ t.home_tagline() }}</p>
     </div>
 
     <div class="glass flex flex-col gap-6 rounded-3xl p-6">
       <form (submit)="$event.preventDefault(); openGraph(graphIdInput.value)">
-        <label for="graphId" class="field-label">{{ t.home.openGraph }}</label>
+        <label for="graphId" class="field-label">{{ t.home_openGraph() }}</label>
         <div class="flex gap-2">
           <input
             #graphIdInput
@@ -24,11 +24,11 @@
             type="text"
             class="input"
             autocomplete="off"
-            [placeholder]="t.home.graphIdPlaceholder" />
+            [placeholder]="t.home_graphIdPlaceholder()" />
           <button
             type="submit"
             class="btn btn-secondary h-11 shrink-0"
-            [attr.aria-label]="t.home.openGraphButton">
+            [attr.aria-label]="t.home_openGraphButton()">
             <span class="icon-[mdi--arrow-right] text-lg"></span>
           </button>
         </div>
@@ -36,12 +36,12 @@
 
       <div class="flex items-center gap-3 text-xs text-muted uppercase">
         <div class="h-px grow bg-line"></div>
-        {{ t.home.or }}
+        {{ t.home_or() }}
         <div class="h-px grow bg-line"></div>
       </div>
 
       <form (submit)="$event.preventDefault(); newGraph(graphNameInput.value)">
-        <label for="graphName" class="field-label">{{ t.home.newGraph }}</label>
+        <label for="graphName" class="field-label">{{ t.home_newGraph() }}</label>
         <div class="flex gap-2">
           <input
             #graphNameInput
@@ -49,15 +49,15 @@
             type="text"
             class="input"
             autocomplete="off"
-            [placeholder]="t.home.newGraphPlaceholder" />
+            [placeholder]="t.home_newGraphPlaceholder()" />
           <button type="submit" class="btn btn-primary h-11 shrink-0" [disabled]="isCreating()">
-            {{ t.home.create }}
+            {{ t.home_create() }}
           </button>
         </div>
         @if (createFailed()) {
           <p class="field-error" role="alert">
             <span class="icon-[mdi--alert-circle]"></span>
-            {{ t.home.createFailed }}
+            {{ t.home_createFailed() }}
           </p>
         }
       </form>
@@ -65,7 +65,7 @@
 
     @if (recentGraphs().length > 0) {
       <section class="mt-6">
-        <h2 class="field-label px-2">{{ t.home.recentlyOpened }}</h2>
+        <h2 class="field-label px-2">{{ t.home_recentlyOpened() }}</h2>
         <ul class="glass divide-y divide-line overflow-hidden rounded-2xl">
           @for (recent of recentGraphs(); track recent.id) {
             <li class="group flex items-center">
@@ -81,7 +81,7 @@
               <button
                 type="button"
                 class="btn btn-ghost btn-icon mr-2 size-8 shrink-0 text-base text-muted opacity-60 group-hover:opacity-100"
-                [attr.aria-label]="t.home.removeRecent(recent.name)"
+                [attr.aria-label]="t.home_removeRecent(recent)"
                 (click)="forget(recent.id)">
                 <span class="icon-[mdi--close]"></span>
               </button>

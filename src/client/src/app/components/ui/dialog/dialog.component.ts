@@ -9,7 +9,7 @@ import {
   viewChild,
 } from '@angular/core';
 
-import { I18nService } from '../../../i18n/i18n.service';
+import { TranslateService } from '../../../i18n/translate.service';
 
 /**
  * A modal dialog based on the native `<dialog>` element. It is centered on larger screens and
@@ -31,7 +31,7 @@ import { I18nService } from '../../../i18n/i18n.service';
           <button
             type="button"
             class="btn btn-ghost btn-icon -mr-2 size-9 text-lg text-muted"
-            [attr.aria-label]="i18n.t().common.close"
+            [attr.aria-label]="translate.translations.common_close()"
             (click)="open.set(false)">
             <span class="icon-[mdi--close]"></span>
           </button>
@@ -50,7 +50,7 @@ import { I18nService } from '../../../i18n/i18n.service';
 export class DialogComponent {
   private readonly _dialog = viewChild.required<ElementRef<HTMLDialogElement>>('dialog');
 
-  protected readonly i18n = inject(I18nService);
+  protected readonly translate = inject(TranslateService);
 
   public readonly open = model(false);
   public readonly title = input('');

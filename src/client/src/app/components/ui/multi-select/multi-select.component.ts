@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
-import { I18nService } from '../../../i18n/i18n.service';
+import { TranslateService } from '../../../i18n/translate.service';
 
 let nextId = 0;
 
@@ -33,7 +33,9 @@ let nextId = 0;
             <button
               type="button"
               class="grid size-5 shrink-0 cursor-pointer place-items-center rounded-md text-muted hover:bg-fg/10 hover:text-fg"
-              [attr.aria-label]="i18n.t().multiSelect.remove(optionLabel()(option))"
+              [attr.aria-label]="
+                translate.translations.multiSelect_remove({ label: optionLabel()(option) })
+              "
               [disabled]="disabled()"
               (click)="toggle(option)">
               <span class="icon-[mdi--close] text-xs"></span>
@@ -89,7 +91,9 @@ let nextId = 0;
               <span class="truncate">{{ optionLabel()(option) }}</span>
             </li>
           } @empty {
-            <li class="px-2.5 py-2 text-sm text-muted">{{ i18n.t().multiSelect.noMatches }}</li>
+            <li class="px-2.5 py-2 text-sm text-muted">
+              {{ translate.translations.multiSelect_noMatches() }}
+            </li>
           }
         </ul>
       }
@@ -105,7 +109,7 @@ let nextId = 0;
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MultiSelectComponent<T> implements ControlValueAccessor {
-  protected readonly i18n = inject(I18nService);
+  protected readonly translate = inject(TranslateService);
   private readonly _searchInput = viewChild.required<ElementRef<HTMLInputElement>>('searchInput');
 
   public readonly options = input.required<readonly T[]>();

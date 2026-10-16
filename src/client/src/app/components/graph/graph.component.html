@@ -1,11 +1,11 @@
-@let t = i18n.t();
+@let t = translate.translations;
 @if (graph.error()) {
   <div class="grid min-h-dvh place-items-center p-6">
     <div class="glass max-w-sm rounded-3xl p-8 text-center">
       <span class="icon-[mdi--movie-off-outline] text-5xl text-danger"></span>
-      <h1 class="mt-3 text-lg font-semibold">{{ t.graph.loadFailedTitle }}</h1>
-      <p class="mt-1 text-sm text-muted">{{ t.graph.loadFailedText }}</p>
-      <a routerLink="/" class="btn btn-primary mt-6">{{ t.graph.backToStart }}</a>
+      <h1 class="mt-3 text-lg font-semibold">{{ t.graph_loadFailedTitle() }}</h1>
+      <p class="mt-1 text-sm text-muted">{{ t.graph_loadFailedText() }}</p>
+      <a routerLink="/" class="btn btn-primary mt-6">{{ t.graph_backToStart() }}</a>
     </div>
   </div>
 } @else if (graph.isLoading() && !graph.value()) {
@@ -13,7 +13,7 @@
     <div
       class="size-10 animate-spin rounded-full border-4 border-accent/20 border-t-accent"
       role="status"
-      [attr.aria-label]="t.common.loading"></div>
+      [attr.aria-label]="t.common_loading()"></div>
   </div>
 } @else if (graph.value(); as graphValue) {
   <!--
@@ -24,7 +24,7 @@
   <div
     #viewport
     class="fixed top-0 left-0 h-lvh w-full cursor-grab touch-none select-none [-webkit-touch-callout:none] active:cursor-grabbing"
-    [attr.aria-label]="t.graph.canvasLabel"
+    [attr.aria-label]="t.graph_canvasLabel()"
     role="region">
     <!-- Bleeds past the viewport edges so it is also drawn behind the browser bars. -->
     <div #dots class="absolute -inset-x-16 -inset-y-64 canvas-dots" aria-hidden="true"></div>
@@ -58,7 +58,7 @@
           [style.top.px]="node.position.y"
           [style.width.px]="node.dimension.width"
           [style.height.px]="node.dimension.height"
-          [attr.aria-label]="node.label + ' (' + t.status[node.data.status] + ')'"
+          [attr.aria-label]="node.label + ' (' + t[`status_${node.data.status}`]() + ')'"
           (click)="nodeDialog.open(node.data)"
           (pointerenter)="$event.pointerType === 'mouse' && hoveredNode.set(node)"
           (pointerleave)="hoveredNode.set(undefined)">
@@ -87,7 +87,7 @@
             @if (node.data.status === 'watching') {
               <span class="node-band" aria-hidden="true">
                 <span class="icon-[mdi--play]"></span>
-                {{ t.status.watching }}
+                {{ t.status_watching() }}
               </span>
             }
           }
@@ -112,7 +112,7 @@
               <span>{{ tooltip.node.whereToWatch }}</span>
             }
             @if (tooltip.node.duration) {
-              <span>{{ tooltip.node.duration.slice(0, 5) }} {{ t.graph.hours }}</span>
+              <span>{{ tooltip.node.duration.slice(0, 5) }} {{ t.graph_hours() }}</span>
             }
           </div>
         }
@@ -124,7 +124,7 @@
       <a
         routerLink="/"
         class="btn btn-ghost btn-icon shrink-0"
-        [attr.aria-label]="t.graph.backToStart">
+        [attr.aria-label]="t.graph_backToStart()">
         <span class="icon-[mdi--arrow-left]"></span>
       </a>
       <div class="min-w-0 grow">
@@ -136,7 +136,7 @@
               [style.width.%]="stats().percent"></div>
           </div>
           <span class="whitespace-nowrap tabular-nums">
-            {{ t.graph.watchedCount(stats().watched, stats().total) }}
+            {{ t.graph_watchedCount(stats()) }}
           </span>
         </div>
       </div>
@@ -144,16 +144,16 @@
         #moreMenu
         class="shrink-0"
         icon="icon-[mdi--dots-vertical]"
-        [label]="t.graph.more"
+        [label]="t.graph_more()"
         (openChange)="languageMenuShown.set(false)">
         @if (!languageMenuShown()) {
           <button type="button" role="menuitem" class="menu-item" (click)="nodeDialog.open()">
             <span class="icon-[mdi--plus]"></span>
-            {{ t.graph.addTitle }}
+            {{ t.graph_addTitle() }}
           </button>
           <button type="button" role="menuitem" class="menu-item" (click)="copyUrl()">
             <span class="icon-[mdi--link-variant]"></span>
-            {{ t.graph.copyLink }}
+            {{ t.graph_copyLink() }}
           </button>
           <button
             type="button"
@@ -164,7 +164,7 @@
             (click)="languageMenuShown.set(true); moreMenu.focusFirst()"
             (keydown.arrowRight)="languageMenuShown.set(true); moreMenu.focusFirst()">
             <span class="icon-[mdi--translate]"></span>
-            <span class="grow">{{ t.common.language }}</span>
+            <span class="grow">{{ t.common_language() }}</span>
             <span class="text-xs text-muted">{{ currentLanguageName() }}</span>
             <span class="icon-[mdi--chevron-right] text-muted"></span>
           </button>
@@ -177,7 +177,7 @@
             (click)="languageMenuShown.set(false); moreMenu.focusFirst()"
             (keydown.arrowLeft)="languageMenuShown.set(false); moreMenu.focusFirst()">
             <span class="icon-[mdi--chevron-left] text-muted"></span>
-            {{ t.common.language }}
+            {{ t.common_language() }}
           </button>
           <div class="menu-separator" role="separator"></div>
           <app-language-options />
@@ -189,19 +189,19 @@
       <div
         class="glass absolute top-[calc(var(--app-top)+4.5rem)] left-1/2 flex -translate-x-1/2 items-center gap-2 rounded-full px-4 py-2 text-sm whitespace-nowrap">
         <span class="icon-[mdi--check] text-watched"></span>
-        {{ t.graph.linkCopied }}
+        {{ t.graph_linkCopied() }}
       </div>
     }
     <!-- Announces the copied link to screen readers. -->
-    <span class="sr-only" aria-live="polite">{{ linkCopied() ? t.graph.linkCopied : '' }}</span>
+    <span class="sr-only" aria-live="polite">{{ linkCopied() ? t.graph_linkCopied() : '' }}</span>
 
     <div
       class="absolute right-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] left-3 flex items-end justify-end">
       <button
         type="button"
         class="glass btn btn-ghost btn-icon pointer-events-auto size-12 rounded-2xl text-xl"
-        [attr.aria-label]="t.graph.resetViewLabel"
-        [title]="t.graph.resetView"
+        [attr.aria-label]="t.graph_resetViewLabel()"
+        [title]="t.graph_resetView()"
         (click)="resetView()">
         <span class="icon-[mdi--crosshairs-gps]"></span>
       </button>

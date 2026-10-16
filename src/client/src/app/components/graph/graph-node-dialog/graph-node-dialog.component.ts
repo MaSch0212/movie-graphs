@@ -11,7 +11,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 
 import { ApiGraph, ApiGraphEdge, ApiGraphNode, ApiGraphNodeStatus } from '../../../api/models';
 import { GraphsService } from '../../../api/services';
-import { I18nService } from '../../../i18n/i18n.service';
+import { TranslateService } from '../../../i18n/translate.service';
 import { imageFileValidator } from '../../../utils/image-file-validator';
 import { Logger } from '../../../utils/logger';
 import { fromTimeSpan, toTimeSpan } from '../../../utils/time-span';
@@ -34,7 +34,7 @@ export type NodeChangeEvent = {
 export class GraphNodeDialogComponent {
   private readonly _graphsService = inject(GraphsService);
   private readonly _confirmService = inject(ConfirmService);
-  protected readonly i18n = inject(I18nService);
+  protected readonly translate = inject(TranslateService);
 
   public readonly graph = input.required<ApiGraph>();
 
@@ -177,9 +177,9 @@ export class GraphNodeDialogComponent {
     }
 
     const confirmed = await this._confirmService.confirm({
-      title: this.i18n.t().node.deleteConfirmTitle,
-      message: this.i18n.t().node.deleteConfirmMessage(nodeToDelete.name),
-      confirmLabel: this.i18n.t().common.delete,
+      title: this.translate.translations.node_deleteConfirmTitle(),
+      message: this.translate.translations.node_deleteConfirmMessage({ name: nodeToDelete.name }),
+      confirmLabel: this.translate.translations.common_delete(),
       destructive: true,
     });
     if (!confirmed) return;

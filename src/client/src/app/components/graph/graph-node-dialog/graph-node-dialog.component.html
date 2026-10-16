@@ -1,5 +1,5 @@
-@let t = i18n.t();
-<app-dialog [(open)]="visible" [title]="nodeToUpdate() ? t.node.editTitle : t.node.addTitle">
+@let t = translate.translations;
+<app-dialog [(open)]="visible" [title]="nodeToUpdate() ? t.node_editTitle() : t.node_addTitle()">
   <form
     id="node-form"
     class="flex flex-col gap-5 pt-1 pb-3"
@@ -10,23 +10,23 @@
         class="flex items-center gap-2 rounded-xl bg-danger/10 px-3.5 py-3 text-sm text-danger"
         role="alert">
         <span class="icon-[mdi--alert-circle-outline] shrink-0 text-lg"></span>
-        {{ t.node.saveFailed }}
+        {{ t.node_saveFailed() }}
       </div>
     }
 
     <div>
-      <label for="nodeName" class="field-label">{{ t.node.title }}</label>
+      <label for="nodeName" class="field-label">{{ t.node_title() }}</label>
       <input
         id="nodeName"
         type="text"
         class="input"
         formControlName="name"
         autocomplete="off"
-        [placeholder]="t.node.titlePlaceholder" />
+        [placeholder]="t.node_titlePlaceholder()" />
       @if (showError('name')) {
         <p class="field-error">
           <span class="icon-[mdi--alert-circle]"></span>
-          {{ t.node.titleRequired }}
+          {{ t.node_titleRequired() }}
         </p>
       }
     </div>
@@ -51,27 +51,27 @@
           <img [src]="imageSource" alt="Poster" class="absolute inset-0 size-full object-cover" />
           <span
             class="absolute inset-x-0 bottom-0 bg-black/55 py-1 text-center text-xs text-white backdrop-blur-sm">
-            {{ t.node.posterChange }}
+            {{ t.node_posterChange() }}
           </span>
         } @else {
           <span
             class="absolute inset-0 flex flex-col items-center justify-center gap-1 p-2 text-center text-xs text-muted">
             <span class="icon-[mdi--image-plus-outline] text-3xl"></span>
-            {{ t.node.poster }}
+            {{ t.node_poster() }}
           </span>
         }
         <input
           type="file"
           accept="image/*"
           class="sr-only"
-          [attr.aria-label]="t.node.posterLabel"
+          [attr.aria-label]="t.node_posterLabel()"
           (change)="onImageFileChange($event)" />
       </label>
 
       <div class="flex min-w-0 grow flex-col justify-center gap-4">
         <div class="flex flex-col gap-4">
           <div>
-            <label for="duration" class="field-label">{{ t.node.runtime }}</label>
+            <label for="duration" class="field-label">{{ t.node_runtime() }}</label>
             <div class="relative w-28">
               <input
                 id="duration"
@@ -83,12 +83,12 @@
                 placeholder="—" />
               <span
                 class="pointer-events-none absolute top-1/2 right-3.5 -translate-y-1/2 text-sm text-muted">
-                {{ t.node.minutes }}
+                {{ t.node_minutes() }}
               </span>
             </div>
           </div>
           <div>
-            <label for="whereToWatch" class="field-label">{{ t.node.whereToWatch }}</label>
+            <label for="whereToWatch" class="field-label">{{ t.node_whereToWatch() }}</label>
             <input
               id="whereToWatch"
               type="text"
@@ -112,38 +112,38 @@
         <span class="icon-[mdi--alert-circle]"></span>
         @switch (form.controls.imageFile.errors?.['imageFile']) {
           @case ('notAnImage') {
-            {{ t.node.posterNotAnImage }}
+            {{ t.node_posterNotAnImage() }}
           }
           @case ('tooLarge') {
-            {{ t.node.posterTooLarge }}
+            {{ t.node_posterTooLarge() }}
           }
           @default {
-            {{ t.node.posterRequired }}
+            {{ t.node_posterRequired() }}
           }
         }
       </p>
     }
 
     <fieldset>
-      <legend class="field-label">{{ t.node.status }}</legend>
+      <legend class="field-label">{{ t.node_status() }}</legend>
       <div class="grid grid-cols-4 gap-1 rounded-xl bg-fg/6 p-1">
         @for (option of statusOptions; track option.value) {
           <label
             class="flex cursor-pointer flex-col items-center gap-0.5 rounded-lg px-1 py-2 text-xs font-medium text-muted transition has-checked:bg-surface-raised has-checked:text-fg has-checked:shadow-sm has-focus-visible:ring-2 has-focus-visible:ring-accent">
             <input type="radio" class="sr-only" formControlName="status" [value]="option.value" />
             <span class="text-lg" [class]="option.icon"></span>
-            {{ t.status[option.value] }}
+            {{ t[`status_${option.value}`]() }}
           </label>
         }
       </div>
     </fieldset>
 
     <div>
-      <label for="dependsOn" class="field-label">{{ t.node.watchAfter }}</label>
+      <label for="dependsOn" class="field-label">{{ t.node_watchAfter() }}</label>
       <app-multi-select
         inputId="dependsOn"
         formControlName="dependsOn"
-        [placeholder]="t.node.searchTitles"
+        [placeholder]="t.node_searchTitles()"
         [options]="otherNodes()"
         [optionLabel]="nodeLabel"
         [optionKey]="nodeKey" />
@@ -158,19 +158,19 @@
         [disabled]="isLoading()"
         (click)="delete()">
         <span class="icon-[mdi--delete-outline] text-lg"></span>
-        {{ t.common.delete }}
+        {{ t.common_delete() }}
       </button>
     }
     <div class="grow"></div>
     <button type="button" class="btn btn-ghost" [disabled]="isLoading()" (click)="close()">
-      {{ t.common.cancel }}
+      {{ t.common_cancel() }}
     </button>
     <button type="submit" form="node-form" class="btn btn-primary" [disabled]="isLoading()">
       @if (isLoading()) {
         <span
           class="size-4 animate-spin rounded-full border-2 border-accent-fg/30 border-t-accent-fg"></span>
       }
-      {{ t.common.save }}
+      {{ t.common_save() }}
     </button>
   </ng-container>
 </app-dialog>

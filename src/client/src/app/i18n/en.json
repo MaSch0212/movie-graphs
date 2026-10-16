@@ -1,0 +1,72 @@
+{
+  "common": {
+    "appName": "MovieGraphs",
+    "cancel": "Cancel",
+    "close": "Close",
+    "confirm": "Confirm",
+    "delete": "Delete",
+    "save": "Save",
+    "loading": "Loading",
+    "language": "Language",
+    "systemLanguage": "System"
+  },
+  "home": {
+    "tagline": "Plan what to watch next — in the right order.",
+    "openGraph": "Open a graph",
+    "graphIdPlaceholder": "Graph ID or link",
+    "openGraphButton": "Open graph",
+    "or": "or",
+    "newGraph": "Start a new graph",
+    "newGraphPlaceholder": "e.g. Marvel Cinematic Universe",
+    "create": "Create",
+    "createFailed": "Creating the graph failed. Please try again.",
+    "recentlyOpened": "Recently opened",
+    "removeRecent": "Remove {{ name }} from recent graphs"
+  },
+  "graph": {
+    "loadFailedTitle": "Couldn't load this graph",
+    "loadFailedText": "Check the link or try again later.",
+    "backToStart": "Back to start",
+    "canvasLabel": "Watch order graph",
+    "watchedCount": "{{ watched }} / {{ total }} watched",
+    "more": "More",
+    "copyLink": "Copy link",
+    "linkCopied": "Link copied",
+    "addTitle": "Add title",
+    "resetView": "Reset view",
+    "resetViewLabel": "Reset view to the next title",
+    "hours": "h"
+  },
+  "status": {
+    "unwatched": "To watch",
+    "watching": "Watching",
+    "watched": "Watched",
+    "ignored": "Skip"
+  },
+  "node": {
+    "addTitle": "Add title",
+    "editTitle": "Edit title",
+    "saveFailed": "Saving failed. Please try again later.",
+    "title": "Title",
+    "titlePlaceholder": "e.g. Iron Man (2008)",
+    "titleRequired": "A title is required",
+    "poster": "Poster",
+    "posterLabel": "Poster image",
+    "posterChange": "Change",
+    "posterRequired": "A poster image is required",
+    "posterNotAnImage": "The file must be an image.",
+    "posterTooLarge": "The image must be smaller than 1 MB.",
+    "runtime": "Runtime",
+    "minutes": "min",
+    "whereToWatch": "Where to watch",
+    "status": "Status",
+    "watchAfter": "Watch after",
+    "searchTitles": "Search titles…",
+    "deleteConfirmTitle": "Delete title?",
+    "deleteConfirmMessage": "\"{{ name }}\" and all of its connections will be removed from the graph."
+  },
+  "multiSelect": {
+    "noMatches": "No matches",
+    "remove": "Remove {{ label }}"
+  }
+}

@@ -1,0 +1,72 @@
+{
+  "common": {
+    "appName": "MovieGraphs",
+    "cancel": "Abbrechen",
+    "close": "Schließen",
+    "confirm": "Bestätigen",
+    "delete": "Löschen",
+    "save": "Speichern",
+    "loading": "Wird geladen",
+    "language": "Sprache",
+    "systemLanguage": "System"
+  },
+  "home": {
+    "tagline": "Plane, was du als Nächstes schaust – in der richtigen Reihenfolge.",
+    "openGraph": "Graph öffnen",
+    "graphIdPlaceholder": "Graph-ID oder Link",
+    "openGraphButton": "Graph öffnen",
+    "or": "oder",
+    "newGraph": "Neuen Graph anlegen",
+    "newGraphPlaceholder": "z. B. Marvel Cinematic Universe",
+    "create": "Anlegen",
+    "createFailed": "Der Graph konnte nicht angelegt werden. Bitte versuche es erneut.",
+    "recentlyOpened": "Zuletzt geöffnet",
+    "removeRecent": "{{ name }} aus den zuletzt geöffneten Graphen entfernen"
+  },
+  "graph": {
+    "loadFailedTitle": "Dieser Graph konnte nicht geladen werden",
+    "loadFailedText": "Prüfe den Link oder versuche es später erneut.",
+    "backToStart": "Zur Startseite",
+    "canvasLabel": "Graph der Reihenfolge",
+    "watchedCount": "{{ watched }} / {{ total }} gesehen",
+    "more": "Mehr",
+    "copyLink": "Link kopieren",
+    "linkCopied": "Link kopiert",
+    "addTitle": "Titel hinzufügen",
+    "resetView": "Ansicht zurücksetzen",
+    "resetViewLabel": "Ansicht auf den nächsten Titel zurücksetzen",
+    "hours": "Std."
+  },
+  "status": {
+    "unwatched": "Offen",
+    "watching": "Am Schauen",
+    "watched": "Gesehen",
+    "ignored": "Auslassen"
+  },
+  "node": {
+    "addTitle": "Titel hinzufügen",
+    "editTitle": "Titel bearbeiten",
+    "saveFailed": "Speichern fehlgeschlagen. Bitte versuche es später erneut.",
+    "title": "Titel",
+    "titlePlaceholder": "z. B. Iron Man (2008)",
+    "titleRequired": "Ein Titel ist erforderlich",
+    "poster": "Poster",
+    "posterLabel": "Posterbild",
+    "posterChange": "Ändern",
+    "posterRequired": "Ein Posterbild ist erforderlich",
+    "posterNotAnImage": "Die Datei muss ein Bild sein.",
+    "posterTooLarge": "Das Bild muss kleiner als 1 MB sein.",
+    "runtime": "Laufzeit",
+    "minutes": "Min.",
+    "whereToWatch": "Verfügbar bei",
+    "status": "Status",
+    "watchAfter": "Schauen nach",
+    "searchTitles": "Titel suchen…",
+    "deleteConfirmTitle": "Titel löschen?",
+    "deleteConfirmMessage": "„{{ name }}“ und alle Verbindungen werden aus dem Graph entfernt."
+  },
+  "multiSelect": {
+    "noMatches": "Keine Treffer",
+    "remove": "{{ label }} entfernen"
+  }
+}

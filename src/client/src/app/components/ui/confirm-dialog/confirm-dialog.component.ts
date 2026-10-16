@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
 
-import { I18nService } from '../../../i18n/i18n.service';
+import { TranslateService } from '../../../i18n/translate.service';
 import { DialogComponent } from '../dialog/dialog.component';
 import { ConfirmService } from './confirm.service';
 
@@ -16,7 +16,7 @@ import { ConfirmService } from './confirm.service';
       <ng-container dialogFooter>
         <div class="grow"></div>
         <button type="button" class="btn btn-ghost" (click)="confirmService.resolve(false)">
-          {{ i18n.t().common.cancel }}
+          {{ translate.translations.common_cancel() }}
         </button>
         <button
           type="button"
@@ -25,7 +25,7 @@ import { ConfirmService } from './confirm.service';
           [class.bg-danger]="request()?.destructive"
           [class.text-white]="request()?.destructive"
           (click)="confirmService.resolve(true)">
-          {{ request()?.confirmLabel ?? i18n.t().common.confirm }}
+          {{ request()?.confirmLabel ?? translate.translations.common_confirm() }}
         </button>
       </ng-container>
     </app-dialog>
@@ -34,6 +34,6 @@ import { ConfirmService } from './confirm.service';
 })
 export class ConfirmDialogComponent {
   protected readonly confirmService = inject(ConfirmService);
-  protected readonly i18n = inject(I18nService);
+  protected readonly translate = inject(TranslateService);
   protected readonly request = computed(() => this.confirmService.pending());
 }

@@ -28,6 +28,7 @@
     "@angular/forms": "^22.2.2",
     "@angular/platform-browser": "^22.2.2",
     "@angular/router": "^22.2.2",
+    "@ngneers/signal-translate": "22.0.0",
     "elkjs": "0.12.0",
     "immer": "^11.1.21",
     "rxjs": "~7.8.0",
