@@ -13,7 +13,13 @@ using MovieGraphs.Services;
 namespace MovieGraphs.Endpoints.Graphs;
 
 /// <param name="GraphNodeId">The id of the node to update.</param>
-/// <param name="Name">The new name of the node.</param>
+/// <param name="Name">The new title of the node, without year, season or episodes.</param>
+/// <param name="ShortName">A shorter title for places with little space.</param>
+/// <param name="Type">Whether the node is a movie or (a part of) a series.</param>
+/// <param name="Year">The year the node was released.</param>
+/// <param name="Season">The season of a series.</param>
+/// <param name="EpisodeFrom">The first episode of a series that belongs to the node.</param>
+/// <param name="EpisodeTo">The last episode, if the node covers a range of episodes.</param>
 /// <param name="Image">The new image of the node.</param>
 /// <param name="Status">The new watch status of the node.</param>
 /// <param name="Duration">The new duration of the node.</param>
@@ -21,6 +27,12 @@ namespace MovieGraphs.Endpoints.Graphs;
 public record UpdateGraphNodeRequest(
     [property: Required] string GraphNodeId,
     string? Name,
+    string? ShortName,
+    GraphNodeType? Type,
+    int? Year,
+    int? Season,
+    int? EpisodeFrom,
+    int? EpisodeTo,
     IFormFile? Image,
     GraphNodeStatus? Status,
     TimeSpan? Duration,
@@ -38,6 +50,9 @@ public class UpdateGraphNodeRequestValidator : Validator<UpdateGraphNodeRequest>
         RuleFor(x => x.Name)
             .Must(x => x == null || !string.IsNullOrWhiteSpace(x))
             .WithMessage("'Name' must not be empty.");
+        RuleFor(x => x.ShortName).MaximumLength(255);
+        // Year, season and episodes are checked in the endpoint: empty values (which clear them)
+        // arrive as 0 here.
     }
 }
 
@@ -104,6 +119,37 @@ public class UpdateGraphNodeEndpoint(
             node.Duration = string.IsNullOrWhiteSpace(duration) ? null : req.Duration;
         if (Form.TryGetValue("whereToWatch", out var whereToWatch))
             node.WhereToWatch = string.IsNullOrWhiteSpace(whereToWatch) ? null : req.WhereToWatch;
+        if (Form.TryGetValue("shortName", out var shortName))
+            node.ShortName = string.IsNullOrWhiteSpace(shortName) ? null : req.ShortName;
+        if (req.Type is not null)
+            node.Type = req.Type.Value;
+        if (Form.TryGetValue("year", out var year))
+            node.Year = string.IsNullOrWhiteSpace(year) ? null : req.Year;
+        if (Form.TryGetValue("season", out var season))
+            node.Season = string.IsNullOrWhiteSpace(season) ? null : req.Season;
+        if (Form.TryGetValue("episodeFrom", out var episodeFrom))
+            node.EpisodeFrom = string.IsNullOrWhiteSpace(episodeFrom) ? null : req.EpisodeFrom;
+        if (Form.TryGetValue("episodeTo", out var episodeTo))
+            node.EpisodeTo = string.IsNullOrWhiteSpace(episodeTo) ? null : req.EpisodeTo;
+        // Only series have seasons and episodes.
+        if (node.Type == GraphNodeType.Movie)
+        {
+            node.Season = null;
+            node.EpisodeFrom = null;
+            node.EpisodeTo = null;
+        }
+        if (node.Year is < 1800 or > 2200)
+            AddError(x => x.Year, "'Year' must be between 1800 and 2200.");
+        if (node.Season is < 0 or > 1000)
+            AddError(x => x.Season, "'Season' must be between 0 and 1000.");
+        if (node.EpisodeFrom is < 1 or > 10000)
+            AddError(x => x.EpisodeFrom, "'Episode From' must be between 1 and 10000.");
+        if (
+            node.EpisodeTo is not null
+            && (node.EpisodeFrom is null || node.EpisodeTo < node.EpisodeFrom)
+        )
+            AddError(x => x.EpisodeTo, "'Episode To' needs an 'Episode From' that is not greater.");
+        ThrowIfAnyErrors();
 
         await databaseContext.SaveChangesAsync(ct);
         await Send.OkAsync(new(graphMapper.ToGraphNodeExpression.Compile()(node)), ct);

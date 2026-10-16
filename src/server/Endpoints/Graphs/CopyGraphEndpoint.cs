@@ -70,6 +70,12 @@ public class CopyGraphEndpoint(
             node => new GraphNodeEntity
             {
                 Name = node.Name,
+                ShortName = node.ShortName,
+                Type = node.Type,
+                Year = node.Year,
+                Season = node.Season,
+                EpisodeFrom = node.EpisodeFrom,
+                EpisodeTo = node.EpisodeTo,
                 Image = new ImageEntity
                 {
                     Name = node.Image.Name,

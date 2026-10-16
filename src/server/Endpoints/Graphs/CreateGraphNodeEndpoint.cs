@@ -11,7 +11,13 @@ using MovieGraphs.Services;
 namespace MovieGraphs.Endpoints.Graphs;
 
 /// <param name="GraphId">The id of the graph to add the node to.</param>
-/// <param name="Name">The name of the node.</param>
+/// <param name="Name">The title of the node, without year, season or episodes.</param>
+/// <param name="ShortName">A shorter title for places with little space.</param>
+/// <param name="Type">Whether the node is a movie or (a part of) a series (defaults to movie).</param>
+/// <param name="Year">The year the node was released.</param>
+/// <param name="Season">The season of a series.</param>
+/// <param name="EpisodeFrom">The first episode of a series that belongs to the node.</param>
+/// <param name="EpisodeTo">The last episode, if the node covers a range of episodes.</param>
 /// <param name="Image">The image of the node.</param>
 /// <param name="Status">The watch status of the node (defaults to unwatched).</param>
 /// <param name="Duration">The duration of the node.</param>
@@ -19,6 +25,12 @@ namespace MovieGraphs.Endpoints.Graphs;
 public record CreateGraphNodeRequest(
     [property: Required] string GraphId,
     [property: Required] string Name,
+    string? ShortName,
+    GraphNodeType? Type,
+    int? Year,
+    int? Season,
+    int? EpisodeFrom,
+    int? EpisodeTo,
     [property: Required] IFormFile Image,
     GraphNodeStatus? Status,
     TimeSpan? Duration,
@@ -35,6 +47,13 @@ public class CreateGraphNodeRequestValidator : Validator<CreateGraphNodeRequest>
         RuleFor(x => x.GraphId).NotEmpty().ValidSqid(idService.Graph);
         RuleFor(x => x.Name).NotEmpty();
         RuleFor(x => x.Image).NotEmpty();
+        RuleFor(x => x.ShortName).MaximumLength(255);
+        RuleFor(x => x.Year).InclusiveBetween(1800, 2200);
+        RuleFor(x => x.Season).InclusiveBetween(0, 1000);
+        RuleFor(x => x.EpisodeFrom).InclusiveBetween(1, 10000);
+        RuleFor(x => x.EpisodeTo)
+            .Must((req, to) => to == null || (req.EpisodeFrom != null && to >= req.EpisodeFrom))
+            .WithMessage("'Episode To' needs an 'Episode From' that is not greater.");
     }
 }
 
@@ -80,10 +99,18 @@ public class CreateGraphNodeEndpoint(DatabaseContext databaseContext, IIdService
             return;
         }
 
+        var type = req.Type ?? GraphNodeType.Movie;
         var node = new GraphNodeEntity
         {
             GraphId = graphId,
             Name = req.Name,
+            ShortName = string.IsNullOrWhiteSpace(req.ShortName) ? null : req.ShortName,
+            Type = type,
+            Year = req.Year,
+            // Only series have seasons and episodes.
+            Season = type == GraphNodeType.Series ? req.Season : null,
+            EpisodeFrom = type == GraphNodeType.Series ? req.EpisodeFrom : null,
+            EpisodeTo = type == GraphNodeType.Series ? req.EpisodeTo : null,
             Image = new ImageEntity { Name = req.Name, Data = imageData },
             Status = req.Status ?? GraphNodeStatus.Unwatched,
             Duration = req.Duration,
@@ -98,6 +125,12 @@ public class CreateGraphNodeEndpoint(DatabaseContext databaseContext, IIdService
                 new(
                     idService.GraphNode.Encode(node.Id),
                     node.Name,
+                    node.ShortName,
+                    node.Type,
+                    node.Year,
+                    node.Season,
+                    node.EpisodeFrom,
+                    node.EpisodeTo,
                     $"images/{idService.Image.Encode(node.ImageId)}",
                     node.Status,
                     node.Duration,

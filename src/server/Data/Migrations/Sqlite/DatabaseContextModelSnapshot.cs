@@ -15,7 +15,7 @@ namespace MovieGraphs.Data.Migrations.Sqlite
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.0");
+            modelBuilder.HasAnnotation("ProductVersion", "10.0.13");
 
             modelBuilder.Entity("MovieGraphs.Data.Entities.GraphEdgeEntity", b =>
                 {
@@ -63,6 +63,14 @@ namespace MovieGraphs.Data.Migrations.Sqlite
                         .HasColumnType("TEXT")
                         .HasColumnName("duration");
 
+                    b.Property<int?>("EpisodeFrom")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("episode_from");
+
+                    b.Property<int?>("EpisodeTo")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("episode_to");
+
                     b.Property<long>("GraphId")
                         .HasColumnType("INTEGER")
                         .HasColumnName("graph_id");
@@ -77,13 +85,30 @@ namespace MovieGraphs.Data.Migrations.Sqlite
                         .HasColumnType("TEXT")
                         .HasColumnName("name");
 
+                    b.Property<int?>("Season")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("season");
+
+                    b.Property<string>("ShortName")
+                        .HasMaxLength(255)
+                        .HasColumnType("TEXT")
+                        .HasColumnName("short_name");
+
                     b.Property<int>("Status")
                         .HasColumnType("INTEGER")
                         .HasColumnName("status");
 
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("type");
+
                     b.Property<string>("WhereToWatch")
                         .HasColumnType("TEXT")
                         .HasColumnName("where_to_watch");
+
+                    b.Property<int?>("Year")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("year");
 
                     b.HasKey("Id");
 
