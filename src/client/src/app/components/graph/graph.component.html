@@ -60,7 +60,7 @@
           [style.height.px]="node.dimension.height"
           [attr.aria-label]="title(node.data) + ' (' + t[`status_${node.data.status}`]() + ')'"
           (click)="nodeDialog.open(node.data)"
-          (pointerenter)="$event.pointerType === 'mouse' && hoveredNode.set(node)"
+          (pointerenter)="$event.pointerType === 'mouse' && showTooltip(node)"
           (pointerleave)="hoveredNode.set(undefined)">
           <img
             class="node-poster pointer-events-none size-full rounded-[10px] object-cover [-webkit-user-drag:none]"

@@ -181,6 +181,12 @@ export class GraphComponent {
 
   protected readonly title = (node: ApiGraphNode) => fullTitle(node, this.translate.translations);
 
+  protected showTooltip(node: LayoutNode) {
+    // The transform may have changed since the last tooltip was shown.
+    this._tooltipTransform.set(this._panZoom.transform);
+    this.hoveredNode.set(node);
+  }
+
   protected readonly tooltip = computed(() => {
     const node = this.hoveredNode();
     if (!node) return undefined;
