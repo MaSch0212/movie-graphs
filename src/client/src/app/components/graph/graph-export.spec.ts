@@ -1,5 +1,5 @@
 import { ApiGraphNodeStatus } from '../../api/models';
-import { buildGraphSvg, ExportOptions, posterWidth, rasterScale } from './graph-export';
+import { buildGraphSvg, ExportOptions, posterWidth, rasterScale, wrapText } from './graph-export';
 import { GraphLayout } from './graph-layout';
 
 const node = (id: string, status: ApiGraphNodeStatus, x: number) => ({
@@ -26,6 +26,7 @@ const options: ExportOptions = {
   background: 'dark',
   dots: true,
   showStatus: true,
+  showTitles: false,
   resolution: 2,
 };
 
@@ -33,7 +34,11 @@ const content = {
   images: new Map([['a', 'data:image/jpeg;base64,AAAA']]),
   watchingLabel: 'Watching',
   title: (node: { name: string }) => node.name,
+  posterTitle: (node: { id: string }) => ({ title: `Poster ${node.id}`, episodes: '' }),
 };
+
+/** Every character is 10 px wide. */
+const measure = (text: string) => text.length * 10;
 
 const parse = (svg: string) => new DOMParser().parseFromString(svg, 'image/svg+xml');
 
@@ -111,5 +116,27 @@ describe('posterWidth', () => {
     expect(posterWidth(90, 2)).toBe(200);
     expect(posterWidth(90, 3)).toBe(400);
     expect(posterWidth(90, 10)).toBe(800);
+  });
+});
+
+describe('titles on the posters', () => {
+  it('are only shown when wanted, above the "Watching" label', () => {
+    expect(parse(buildGraphSvg(layout, options, content)).querySelectorAll('text')).toHaveLength(1);
+
+    const doc = parse(buildGraphSvg(layout, { ...options, showTitles: true }, content));
+    const texts = [...doc.querySelectorAll('text')];
+    expect(texts.map(text => text.textContent)).toEqual(
+      expect.arrayContaining(['Poster a', 'Poster b', 'Poster c'])
+    );
+    const bottom = (id: string) =>
+      Number(texts.find(text => text.textContent === `Poster ${id}`)?.getAttribute('y'));
+    expect(bottom('b')).toBeLessThan(bottom('a') - 10);
+  });
+
+  it('wraps text into lines and ends cut off text with an ellipsis', () => {
+    expect(wrapText('Iron Man 2', 80, '', measure)).toEqual(['Iron Man', '2']);
+    expect(wrapText('Guardians', 50, '', measure)).toEqual(['Guard', 'ians']);
+    expect(wrapText('one two three four', 50, '', measure, 2)).toEqual(['one', 'two…']);
+    expect(wrapText('aaaa bbbb cccc dddd', 50, '', measure, 3)).toEqual(['aaaa', 'bbbb', 'cccc…']);
   });
 });

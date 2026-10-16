@@ -109,8 +109,16 @@
         <input
           type="checkbox"
           class="switch"
-          [checked]="showStatus()"
-          (change)="showStatus.set($any($event.target).checked)" />
+          [checked]="withStatus()"
+          (change)="withStatus.set($any($event.target).checked)" />
+      </label>
+      <label class="flex cursor-pointer items-center justify-between gap-3 py-1.5">
+        <span class="text-sm">{{ t.exportImage_showTitles() }}</span>
+        <input
+          type="checkbox"
+          class="switch"
+          [checked]="withTitles()"
+          (change)="withTitles.set($any($event.target).checked)" />
       </label>
     </div>
   </div>

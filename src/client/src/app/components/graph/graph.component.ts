@@ -20,7 +20,7 @@ import { produce } from 'immer';
 import { ApiGraphNode } from '../../api/models';
 import { GraphsService } from '../../api/services';
 import { TranslateService } from '../../i18n/translate.service';
-import { episodeInfo, fullTitle, shortTitle } from '../../utils/node-title';
+import { episodeInfo, fullTitle, posterTitle } from '../../utils/node-title';
 import { forgetRecentGraph, rememberRecentGraph } from '../../utils/recent-graphs';
 import { ConfirmService } from '../ui/confirm-dialog/confirm.service';
 import {
@@ -168,14 +168,11 @@ export class GraphComponent {
   protected readonly showTitles = signal(loadFlag(SHOW_TITLES_KEY, false));
   /** Whether frames, badges and stamps show the watch status of the titles. */
   protected readonly showStatus = signal(loadFlag(SHOW_STATUS_KEY, true));
-  /** What the posters show when titles are shown: the (short) title and season / episodes. */
+  /** What the posters show when titles are shown. */
   protected readonly posterTitles = computed(() => {
     const t = this.translate.translations;
     return new Map(
-      (this.graph.value()?.graph.nodes ?? []).map(node => [
-        node.id,
-        { title: shortTitle(node), episodes: episodeInfo(node, t, true) },
-      ])
+      (this.graph.value()?.graph.nodes ?? []).map(node => [node.id, posterTitle(node, t)])
     );
   });
 

@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 
 import { TranslateService } from '../../../i18n/translate.service';
-import { fullTitle } from '../../../utils/node-title';
+import { fullTitle, posterTitle } from '../../../utils/node-title';
 import { DialogComponent } from '../../ui/dialog/dialog.component';
 import {
   buildGraphSvg,
@@ -21,10 +21,12 @@ import {
   ExportOptions,
   ExportResolution,
   loadPosters,
+  measureTextWidth,
   posterWidth,
   rasterScale,
   renderGraphImage,
   svgSize,
+  SvgContent,
 } from '../graph-export';
 import { GraphLayout, NODE_WIDTH } from '../graph-layout';
 
@@ -43,6 +45,9 @@ export class ExportImageDialogComponent {
 
   public readonly layout = input.required<GraphLayout>();
   public readonly graphName = input.required<string>();
+  /** What the graph shows, as defaults for the image. */
+  public readonly showTitles = input(false);
+  public readonly showStatus = input(true);
 
   protected readonly formats = EXPORT_FORMATS;
   protected readonly backgrounds = EXPORT_BACKGROUNDS;
@@ -57,7 +62,8 @@ export class ExportImageDialogComponent {
   protected readonly format = signal<ExportFormat>('png');
   protected readonly background = signal<ExportBackground>('dark');
   protected readonly dots = signal(true);
-  protected readonly showStatus = signal(true);
+  protected readonly withStatus = signal(true);
+  protected readonly withTitles = signal(false);
   protected readonly resolution = signal<ExportResolution>(2);
   protected readonly isExporting = signal(false);
   protected readonly hasFailed = signal(false);
@@ -66,7 +72,8 @@ export class ExportImageDialogComponent {
     format: this.format(),
     background: this.background(),
     dots: this.dots(),
-    showStatus: this.showStatus(),
+    showStatus: this.withStatus(),
+    showTitles: this.withTitles(),
     resolution: this.resolution(),
   }));
 
@@ -108,11 +115,7 @@ export class ExportImageDialogComponent {
   protected readonly svg = computed(() => {
     const posters = this._posters();
     if (!posters || posters.layout !== this.layout()) return undefined;
-    return buildGraphSvg(this.layout(), this.options(), {
-      images: posters.images,
-      watchingLabel: this.translate.translations.status_watching(),
-      title: node => fullTitle(node, this.translate.translations),
-    });
+    return buildGraphSvg(this.layout(), this.options(), this.svgContent(posters.images));
   });
 
   protected readonly previewUrl = signal<string | undefined>(undefined);
@@ -137,6 +140,8 @@ export class ExportImageDialogComponent {
 
   public open() {
     this.hasFailed.set(false);
+    this.withStatus.set(this.showStatus());
+    this.withTitles.set(this.showTitles());
     this.visible.set(true);
   }
 
@@ -155,11 +160,7 @@ export class ExportImageDialogComponent {
       const svg = buildGraphSvg(
         this.layout(),
         this.options(),
-        {
-          images: posters.images,
-          watchingLabel: this.translate.translations.status_watching(),
-          title: node => fullTitle(node, this.translate.translations),
-        },
+        this.svgContent(posters.images),
         this._scale()
       );
       const blob = await renderGraphImage(svg, this.options());
@@ -175,6 +176,17 @@ export class ExportImageDialogComponent {
     } finally {
       this.isExporting.set(false);
     }
+  }
+
+  private svgContent(images: ReadonlyMap<string, string>): SvgContent {
+    const t = this.translate.translations;
+    return {
+      images,
+      watchingLabel: t.status_watching(),
+      title: node => fullTitle(node, t),
+      posterTitle: node => posterTitle(node, t),
+      measureText: measureTextWidth,
+    };
   }
 
   private loadPosters(layout: GraphLayout, width: number) {

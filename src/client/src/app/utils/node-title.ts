@@ -40,3 +40,8 @@ export function fullTitle(node: TitleParts, t: TitleTranslations) {
 export function shortTitle(node: TitleParts) {
   return node.shortName?.trim() || node.name;
 }
+
+/** What a poster shows when titles are shown: the (short) title and season / episodes. */
+export function posterTitle(node: TitleParts, t: TitleTranslations) {
+  return { title: shortTitle(node), episodes: episodeInfo(node, t, true) };
+}

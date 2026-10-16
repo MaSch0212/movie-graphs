@@ -14,6 +14,7 @@ export type ExportOptions = {
   background: ExportBackground;
   dots: boolean;
   showStatus: boolean;
+  showTitles: boolean;
   resolution: ExportResolution;
 };
 
@@ -24,7 +25,13 @@ export type SvgContent = {
   watchingLabel: string;
   /** The full title of a node, shown by SVG viewers on hover. */
   title: (node: ApiGraphNode) => string;
+  /** The text shown on a poster when titles are shown. */
+  posterTitle: (node: ApiGraphNode) => PosterTitle;
+  /** Width of a text in the given CSS font; estimated if not given. */
+  measureText?: (text: string, font: string) => number;
 };
+
+export type PosterTitle = { title: string; episodes: string };
 
 type Palette = {
   canvas?: string;
@@ -77,6 +84,14 @@ const RADIUS = 10;
 const BADGE_SIZE = 26;
 const BAND_HEIGHT = 18;
 const BAND_ICON = 11;
+const FONT_FAMILY = 'Inter, system-ui, sans-serif';
+// Like the titles on the posters in the app (see graph.component.css).
+const TITLE_FONT = `600 14px ${FONT_FAMILY}`;
+const TITLE_LINE_HEIGHT = 16;
+const TITLE_MAX_LINES = 3;
+const EPISODES_FONT = `500 11px ${FONT_FAMILY}`;
+const EPISODES_LINE_HEIGHT = 13;
+const TITLE_PADDING = { top: 24, side: 5, bottom: 6 };
 /** Widths the server can scale posters to. */
 const POSTER_WIDTHS = [200, 400, 800] as const;
 
@@ -113,6 +128,9 @@ export function buildGraphSvg(
       `height="${Math.floor(height * scale)}" viewBox="0 0 ${width} ${height}">`,
     '<defs>',
     '<filter id="grayscale"><feColorMatrix type="saturate" values="0"/></filter>',
+    '<linearGradient id="title-shade" x1="0" y1="0" x2="0" y2="1">' +
+      '<stop offset="0" stop-color="#000" stop-opacity="0"/>' +
+      '<stop offset="0.5" stop-color="#000" stop-opacity="0.85"/></linearGradient>',
     '<filter id="glow" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="8"/></filter>',
     `<pattern id="dots" width="${DOT_SPACING}" height="${DOT_SPACING}" patternUnits="userSpaceOnUse">` +
       `<circle cx="${DOT_SPACING / 2}" cy="${DOT_SPACING / 2}" r="1.1" fill="${palette.dot}"/></pattern>`,
@@ -141,7 +159,7 @@ export function buildGraphSvg(
   parts.push('</g>');
 
   layout.nodes.forEach((node, i) => {
-    parts.push(nodeSvg(node, `poster-${i}`, offset, palette, options.showStatus, content));
+    parts.push(nodeSvg(node, `poster-${i}`, offset, palette, options, content));
   });
 
   parts.push('</svg>');
@@ -153,9 +171,10 @@ function nodeSvg(
   clipId: string,
   offset: (value: number) => number,
   palette: Palette,
-  showStatus: boolean,
+  options: ExportOptions,
   content: SvgContent
 ) {
+  const { showStatus } = options;
   const x = offset(node.position.x);
   const y = offset(node.position.y);
   const { width, height } = node.dimension;
@@ -187,6 +206,12 @@ function nodeSvg(
     );
   }
 
+  if (options.showTitles) {
+    // Above the "Watching" label.
+    const bottom = y + height - (showStatus && status === 'watching' ? BAND_HEIGHT : 0);
+    parts.push(posterTitleSvg(content.posterTitle(node.data), x, bottom, width, clipId, content));
+  }
+
   if (showStatus && status !== 'unwatched') {
     const color = palette[status];
     const ring = status === 'watching' ? 5 : 3;
@@ -206,7 +231,7 @@ function nodeSvg(
         `<rect x="${x}" y="${bandY}" width="${width}" height="${BAND_HEIGHT}" fill="${color}" clip-path="url(#${clipId})"/>`,
         icon(ICONS.watching, start + BAND_ICON / 2, bandY + BAND_HEIGHT / 2, BAND_ICON),
         `<text x="${round(start + BAND_ICON + 2 + labelWidth / 2)}" y="${bandY + BAND_HEIGHT / 2}" fill="#fff" ` +
-          `font-family="Inter, system-ui, sans-serif" font-size="10" font-weight="700" letter-spacing="0.2" ` +
+          `font-family="${FONT_FAMILY}" font-size="10" font-weight="700" letter-spacing="0.2" ` +
           `text-anchor="middle" dominant-baseline="central">${escapeXml(content.watchingLabel.toUpperCase())}</text>`
       );
     } else {
@@ -221,6 +246,94 @@ function nodeSvg(
 
   parts.push('</g>');
   return parts.join('');
+}
+
+/** The title at the bottom of a poster, on a dark gradient so it reads on any poster. */
+function posterTitleSvg(
+  { title, episodes }: PosterTitle,
+  x: number,
+  bottom: number,
+  width: number,
+  clipId: string,
+  content: SvgContent
+) {
+  const measure = content.measureText ?? estimateTextWidth;
+  const lines = wrapText(title, width - 2 * TITLE_PADDING.side, TITLE_FONT, measure);
+  const textHeight = lines.length * TITLE_LINE_HEIGHT + (episodes ? 1 + EPISODES_LINE_HEIGHT : 0);
+  const top = bottom - TITLE_PADDING.bottom - textHeight;
+  const cx = round(x + width / 2);
+  const text = (value: string, lineTop: number, lineHeight: number, font: string, extra = '') =>
+    `<text x="${cx}" y="${round(lineTop + lineHeight / 2)}" fill="#fff" style="font: ${font}"${extra} ` +
+    `text-anchor="middle" dominant-baseline="central">${escapeXml(value)}</text>`;
+
+  const parts = [
+    `<rect x="${x}" y="${round(top - TITLE_PADDING.top)}" width="${width}" ` +
+      `height="${round(bottom - top + TITLE_PADDING.top)}" fill="url(#title-shade)" clip-path="url(#${clipId})"/>`,
+    ...lines.map((line, i) =>
+      text(line, top + i * TITLE_LINE_HEIGHT, TITLE_LINE_HEIGHT, TITLE_FONT)
+    ),
+  ];
+  if (episodes) {
+    const episodesTop = top + lines.length * TITLE_LINE_HEIGHT + 1;
+    parts.push(text(episodes, episodesTop, EPISODES_LINE_HEIGHT, EPISODES_FONT, ' opacity="0.8"'));
+  }
+  return parts.join('');
+}
+
+/**
+ * Wraps the text into lines that fit the width, breaking long words anywhere. Text that doesn't
+ * fit into the lines ends with an ellipsis.
+ */
+export function wrapText(
+  text: string,
+  maxWidth: number,
+  font: string,
+  measure: (text: string, font: string) => number,
+  maxLines = TITLE_MAX_LINES
+) {
+  const fits = (value: string) => measure(value, font) <= maxWidth;
+  const lines: string[] = [];
+  let line = '';
+  for (const word of text.trim().split(/\s+/)) {
+    const candidate = line ? `${line} ${word}` : word;
+    if (fits(candidate)) {
+      line = candidate;
+      continue;
+    }
+    if (line) lines.push(line);
+    line = '';
+    // A word that is too long for a line on its own.
+    for (const char of word) {
+      if (line && !fits(line + char)) {
+        lines.push(line);
+        line = '';
+      }
+      line += char;
+    }
+  }
+  if (line) lines.push(line);
+  if (lines.length <= maxLines) return lines;
+
+  const visible = lines.slice(0, maxLines);
+  let last = `${visible[maxLines - 1]} ${lines[maxLines]}`;
+  while (last && !fits(`${last.trimEnd()}…`)) last = last.slice(0, -1);
+  visible[maxLines - 1] = `${last.trimEnd()}…`;
+  return visible;
+}
+
+let measureContext: CanvasRenderingContext2D | null | undefined;
+/** Width of the text in the browser, with the fonts an exported image would be drawn with. */
+export function measureTextWidth(text: string, font: string) {
+  measureContext ??= document.createElement('canvas').getContext('2d');
+  if (!measureContext) return estimateTextWidth(text, font);
+  measureContext.font = font;
+  return measureContext.measureText(text).width;
+}
+
+/** Rough width of a text, if it can't be measured. */
+function estimateTextWidth(text: string, font: string) {
+  const size = Number(/(\d+)px/.exec(font)?.[1] ?? 14);
+  return text.length * size * 0.56;
 }
 
 /** An icon centered on (cx, cy). */

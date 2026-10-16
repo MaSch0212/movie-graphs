@@ -70,6 +70,7 @@
     "noTransparencyInJpeg": "JPEG images cannot be transparent.",
     "dots": "Dotted background",
     "showStatus": "Show status",
+    "showTitles": "Show titles",
     "preview": "Preview",
     "loadingPosters": "Loading posters…",
     "size": "{{ width }} × {{ height }} px",
