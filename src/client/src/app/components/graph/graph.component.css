@@ -143,3 +143,45 @@
     );
   }
 }
+
+/* Titles on the posters (optional): on a dark gradient at the bottom, so they read on any poster. */
+.node-title {
+  position: absolute;
+  bottom: 0;
+  inset-inline: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 24px 5px 6px;
+  border-radius: 0 0 10px 10px;
+  background: linear-gradient(transparent, oklch(0 0 0 / 0.85) 50%);
+  color: white;
+  text-align: center;
+  pointer-events: none;
+}
+.node-title-text {
+  display: -webkit-box;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 16px;
+  overflow-wrap: anywhere;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+.node-title-episodes {
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 13px;
+  opacity: 0.8;
+  white-space: nowrap;
+}
+/* Above the "Watching" label. */
+.node[data-status='watching'] .node-title {
+  bottom: 18px;
+  border-radius: 0;
+}
+/* Too small to read when zoomed out; the stamps show the status there. */
+.graph-content:not([data-zoom='near']) .node-title {
+  display: none;
+}

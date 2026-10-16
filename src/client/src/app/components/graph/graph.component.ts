@@ -11,6 +11,7 @@ import {
   signal,
   untracked,
   viewChild,
+  WritableSignal,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -19,7 +20,7 @@ import { produce } from 'immer';
 import { ApiGraphNode } from '../../api/models';
 import { GraphsService } from '../../api/services';
 import { TranslateService } from '../../i18n/translate.service';
-import { episodeInfo, fullTitle } from '../../utils/node-title';
+import { episodeInfo, fullTitle, shortTitle } from '../../utils/node-title';
 import { forgetRecentGraph, rememberRecentGraph } from '../../utils/recent-graphs';
 import { ConfirmService } from '../ui/confirm-dialog/confirm.service';
 import {
@@ -57,6 +58,7 @@ const EDGE_TO_EDGE_SCROLL_OFFSET = 62;
  * stamps that grow (in world units) when zooming out further. Only crossing a threshold restyles
  * the canvas, so zooming stays smooth.
  */
+const SHOW_TITLES_KEY = 'movie-graphs.show-titles';
 
 const ZOOM_LEVELS = [
   { level: 'far', below: 0.18 },
@@ -158,6 +160,21 @@ export class GraphComponent {
       .join(' · ');
   });
 
+  // Display options, remembered on this device.
+  protected readonly SHOW_TITLES_KEY = SHOW_TITLES_KEY;
+  /** Whether the titles are shown on the posters. */
+  protected readonly showTitles = signal(loadFlag(SHOW_TITLES_KEY, false));
+  /** What the posters show when titles are shown: the (short) title and season / episodes. */
+  protected readonly posterTitles = computed(() => {
+    const t = this.translate.translations;
+    return new Map(
+      (this.graph.value()?.graph.nodes ?? []).map(node => [
+        node.id,
+        { title: shortTitle(node), episodes: episodeInfo(node, t, true) },
+      ])
+    );
+  });
+
   protected readonly title = (node: ApiGraphNode) => fullTitle(node, this.translate.translations);
 
   protected readonly tooltip = computed(() => {
@@ -220,6 +237,16 @@ export class GraphComponent {
       clearTimeout(this._idleTimer);
       clearTimeout(this._noticeTimer);
     });
+  }
+
+  protected toggle(option: WritableSignal<boolean>, storageKey: string) {
+    const value = !option();
+    option.set(value);
+    try {
+      localStorage.setItem(storageKey, String(value));
+    } catch {
+      // Not remembered, e.g. in private mode.
+    }
   }
 
   protected thumbnailUrl(imageUrl: string) {
@@ -422,5 +449,14 @@ export class GraphComponent {
       this._pendingPanToNodeId = undefined;
       this._panZoom.centerOn(this.center(node), this.visibleViewport(viewport), true);
     }
+  }
+}
+
+function loadFlag(storageKey: string, fallback: boolean) {
+  try {
+    const stored = localStorage.getItem(storageKey);
+    return stored === null ? fallback : stored === 'true';
+  } catch {
+    return fallback;
   }
 }

@@ -39,6 +39,7 @@
     "hours": "h",
     "copyGraph": "Copy graph",
     "downloadImage": "Download as image",
+    "showTitles": "Show titles",
     "deleteGraph": "Delete graph",
     "deleteConfirmTitle": "Delete graph?",
     "deleteConfirmMessage": "\"{{ name }}\" and all of its titles will be deleted for everyone with the link. This cannot be undone.",

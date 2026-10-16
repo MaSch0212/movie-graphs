@@ -69,6 +69,15 @@
             decoding="async"
             draggable="false"
             [src]="thumbnailUrl(node.data.imageUrl)" />
+          @if (showTitles() && posterTitles().get(node.id); as posterTitle) {
+            <!-- The text is clamped in an inner element without padding, so no extra line peeks out. -->
+            <span class="node-title" aria-hidden="true">
+              <span class="node-title-text">{{ posterTitle.title }}</span>
+              @if (posterTitle.episodes) {
+                <span class="node-title-episodes">{{ posterTitle.episodes }}</span>
+              }
+            </span>
+          }
           @if (node.data.status !== 'unwatched') {
             <span class="node-ring" aria-hidden="true"></span>
             <span class="node-mark" aria-hidden="true">
@@ -159,6 +168,16 @@
             (click)="exportImageDialog.open()">
             <span class="icon-[mdi--image-outline]"></span>
             {{ t.graph_downloadImage() }}
+          </button>
+          <button
+            type="button"
+            role="menuitemcheckbox"
+            class="menu-item"
+            [attr.aria-checked]="showTitles()"
+            (click)="toggle(showTitles, SHOW_TITLES_KEY)">
+            <span class="icon-[mdi--format-title]"></span>
+            <span class="grow">{{ t.graph_showTitles() }}</span>
+            <span class="icon-[mdi--check] text-accent" [class.invisible]="!showTitles()"></span>
           </button>
           <button
             type="button"
