@@ -1,6 +1,7 @@
 using FastEndpoints;
 using FastEndpoints.Swagger;
 using FluentValidation;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using MovieGraphs.Data;
@@ -54,6 +55,15 @@ builder.Services.SwaggerDocument(c =>
     c.RemoveEmptyRequestSchema = true;
 });
 
+// Runs behind a reverse proxy that terminates HTTPS, so URLs built from the request (e.g. the
+// image URLs) need the scheme the browser used. The proxy's address is not known in advance.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownIPNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
@@ -65,6 +75,8 @@ builder.Services.AddSpaStaticFiles(options =>
 
 var app = builder.Build();
 
+app.UseForwardedHeaders();
+
 // In development, plain HTTP stays usable for testing on other devices in the network: they
 // don't trust the development certificate (e.g. iOS can't load the home screen icon over it).
 if (!app.Environment.IsDevelopment())
@@ -72,7 +84,6 @@ if (!app.Environment.IsDevelopment())
 app.UseResponseCompression();
 
 app.UsePathBaseResolver();
-app.UseForwardedHeaders();
 
 app.UseStaticFiles();
 

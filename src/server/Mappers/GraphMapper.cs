@@ -61,7 +61,7 @@ public class GraphMapper(IHttpContextAccessor httpContextAccessor, IIdService id
         var ctx = httpContextAccessor.HttpContext;
         var baseUrl = ctx is null
             ? ""
-            : $"{ctx.Request.Scheme}://{ctx.Request.Host}/{ctx.Request.PathBase}";
+            : $"{ctx.Request.Scheme}://{ctx.Request.Host}{ctx.Request.PathBase}/";
         return $"{baseUrl}images/{idService.Image.Encode(imageId)}";
     }
 }
