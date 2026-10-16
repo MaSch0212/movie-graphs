@@ -62,7 +62,7 @@
 <ng-template #entry let-node let-watching="watching">
   @let isSaving = saving().has(node.id);
   <li
-    class="group flex items-center gap-3 rounded-xl p-2 transition hover:bg-fg/6 short:gap-2.5 short:px-2 short:py-1"
+    class="group relative flex items-center gap-3 rounded-xl p-2 transition not-first:before:absolute not-first:before:top-0 not-first:before:right-2 not-first:before:left-19 not-first:before:h-px not-first:before:bg-line hover:bg-fg/6 short:not-first:before:left-11.5 short:gap-2.5 short:px-2 short:py-1"
     [class.opacity-50]="isSaving">
     <button
       type="button"
