@@ -5,7 +5,7 @@
       <span class="icon-[mdi--movie-off-outline] text-5xl text-danger"></span>
       <h1 class="mt-3 text-lg font-semibold">{{ t.graph_loadFailedTitle() }}</h1>
       <p class="mt-1 text-sm text-muted">{{ t.graph_loadFailedText() }}</p>
-      <a routerLink="/" class="btn btn-primary mt-6">{{ t.graph_backToStart() }}</a>
+      <a routerLink="/home" class="btn btn-primary mt-6">{{ t.graph_backToStart() }}</a>
     </div>
   </div>
 } @else if (graph.isLoading() && !graph.value()) {
@@ -125,7 +125,7 @@
     <header
       class="glass pointer-events-auto absolute top-(--app-top) right-(--app-right) left-(--app-left) flex items-center gap-2 rounded-2xl p-2 sm:right-auto sm:max-w-[calc(100%-var(--app-left)-var(--app-right))] sm:min-w-80">
       <a
-        routerLink="/"
+        routerLink="/home"
         class="btn btn-ghost btn-icon shrink-0"
         [attr.aria-label]="t.graph_backToStart()">
         <span class="icon-[mdi--arrow-left]"></span>

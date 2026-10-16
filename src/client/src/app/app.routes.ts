@@ -1,13 +1,14 @@
-import { Routes } from '@angular/router';
+import { inject } from '@angular/core';
+import { Router, Routes } from '@angular/router';
 
 import { startPage } from './utils/last-page';
 
 export const routes: Routes = [
   {
-    // The start URL of the home screen app.
+    // The start URL of the home screen app. Only when the app starts, later it is the home page.
     path: '',
     pathMatch: 'full',
-    redirectTo: () => startPage(),
+    redirectTo: () => (inject(Router).navigated ? '/home' : startPage()),
   },
   {
     path: 'home',

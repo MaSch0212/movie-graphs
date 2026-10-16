@@ -420,7 +420,7 @@ export class GraphComponent {
       return;
     }
     forgetRecentGraph(graph.id);
-    await this._router.navigate(['/']);
+    await this._router.navigate(['/home']);
   }
 
   private showNotice(notice: { text: string; error?: boolean }, duration = 1500) {
