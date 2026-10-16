@@ -132,16 +132,21 @@
       </a>
       <div class="min-w-0 grow">
         <h1 class="truncate text-base leading-tight font-semibold">{{ graphName() }}</h1>
-        <div class="mt-1 flex items-center gap-2 text-xs text-muted">
-          <div class="h-1.5 w-20 overflow-hidden rounded-full bg-fg/10">
-            <div
-              class="h-full rounded-full bg-linear-to-r from-watched to-accent transition-[width] duration-500"
-              [style.width.%]="stats().percent"></div>
-          </div>
-          <span class="whitespace-nowrap tabular-nums">
-            {{ t.graph_watchedCount(stats()) }}
+        @let shown = progress();
+        <!-- Switches between the number of titles and the hours watched. -->
+        <button
+          type="button"
+          class="mt-1 flex cursor-pointer items-center gap-2 rounded text-xs text-muted transition-colors hover:text-fg"
+          [title]="shown.hint"
+          [attr.aria-label]="shown.text + '. ' + shown.hint"
+          (click)="toggle(progressInHours, PROGRESS_IN_HOURS_KEY)">
+          <span class="h-1.5 w-20 overflow-hidden rounded-full bg-fg/10">
+            <span
+              class="block h-full rounded-full bg-linear-to-r from-watched to-accent transition-[width] duration-500"
+              [style.width.%]="shown.percent"></span>
           </span>
-        </div>
+          <span class="whitespace-nowrap tabular-nums">{{ shown.text }}</span>
+        </button>
       </div>
       <app-menu
         #moreMenu

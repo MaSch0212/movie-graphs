@@ -23,6 +23,7 @@ import { TranslateService } from '../../i18n/translate.service';
 import { ThemeService } from '../../theme/theme.service';
 import { episodeInfo, fullTitle, posterTitle } from '../../utils/node-title';
 import { forgetRecentGraph, rememberRecentGraph } from '../../utils/recent-graphs';
+import { fromTimeSpan } from '../../utils/time-span';
 import { ConfirmService } from '../ui/confirm-dialog/confirm.service';
 import {
   currentLanguageName,
@@ -66,6 +67,7 @@ const EDGE_TO_EDGE_SCROLL_OFFSET = 62;
  */
 const SHOW_TITLES_KEY = 'movie-graphs.show-titles';
 const SHOW_STATUS_KEY = 'movie-graphs.show-status';
+const PROGRESS_IN_HOURS_KEY = 'movie-graphs.progress-in-hours';
 
 const ZOOM_LEVELS = [
   { level: 'far', below: 0.18 },
@@ -161,6 +163,45 @@ export class GraphComponent {
     };
   });
 
+  /** Hours watched of all hours, by the durations of the titles; skipped ones don't count. */
+  protected readonly timeStats = computed(() => {
+    const relevant = (this.graph.value()?.graph.nodes ?? []).filter(
+      node => node.status !== 'ignored'
+    );
+    let watched = 0;
+    let left = 0;
+    for (const node of relevant) {
+      if (!node.duration) continue;
+      const minutes = fromTimeSpan(node.duration);
+      if (node.status === 'watched') watched += minutes;
+      else left += minutes;
+    }
+    const total = watched + left;
+    return {
+      total,
+      watched: Math.round(watched / 60),
+      totalHours: Math.round(total / 60),
+      percent: total ? Math.round((watched / total) * 100) : 0,
+      withoutDuration: relevant.filter(node => !node.duration).length,
+    };
+  });
+
+  /** The progress in the header, by the number of titles or by the hours watched. */
+  protected readonly progress = computed(() => {
+    const t = this.translate.translations;
+    const time = this.timeStats();
+    if (this.progressInHours() && time.total) {
+      const hint = t.graph_showTitleCount();
+      return {
+        percent: time.percent,
+        text: t.graph_hoursWatched(time),
+        hint: time.withoutDuration ? `${hint} · ${t.graph_withoutDuration(time)}` : hint,
+      };
+    }
+    const stats = this.stats();
+    return { percent: stats.percent, text: t.graph_watchedCount(stats), hint: t.graph_showHours() };
+  });
+
   /** Everything about the hovered title besides its name, e.g. "Season 1 · 2015 · Disney+". */
   protected readonly tooltipDetails = computed(() => {
     const node = this.hoveredNode()?.data;
@@ -179,10 +220,13 @@ export class GraphComponent {
   // Display options, remembered on this device.
   protected readonly SHOW_TITLES_KEY = SHOW_TITLES_KEY;
   protected readonly SHOW_STATUS_KEY = SHOW_STATUS_KEY;
+  protected readonly PROGRESS_IN_HOURS_KEY = PROGRESS_IN_HOURS_KEY;
   /** Whether the titles are shown on the posters. */
   protected readonly showTitles = signal(loadFlag(SHOW_TITLES_KEY, false));
   /** Whether frames, badges and stamps show the watch status of the titles. */
   protected readonly showStatus = signal(loadFlag(SHOW_STATUS_KEY, true));
+  /** Whether the progress shows the hours watched instead of the number of titles. */
+  protected readonly progressInHours = signal(loadFlag(PROGRESS_IN_HOURS_KEY, false));
   /** What the posters show when titles are shown. */
   protected readonly posterTitles = computed(() => {
     const t = this.translate.translations;
