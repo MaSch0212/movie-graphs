@@ -159,6 +159,17 @@
             <span class="icon-[mdi--plus]"></span>
             {{ t.graph_addTitle() }}
           </button>
+          @if (isHomeScreenApp) {
+            <button
+              type="button"
+              role="menuitem"
+              class="menu-item"
+              [disabled]="isReloading()"
+              (click)="reload()">
+              <span class="icon-[mdi--refresh]"></span>
+              {{ t.graph_reload() }}
+            </button>
+          }
           <div class="menu-separator" role="separator"></div>
           <button type="button" role="menuitem" class="menu-item" (click)="copyUrl()">
             <span class="icon-[mdi--link-variant]"></span>

@@ -22,6 +22,7 @@ import { GraphsService } from '../../api/services';
 import { TranslateService } from '../../i18n/translate.service';
 import { ThemeService } from '../../theme/theme.service';
 import { formatDuration } from '../../utils/duration';
+import { isHomeScreenApp } from '../../utils/last-page';
 import { episodeInfo, fullTitle, posterTitle } from '../../utils/node-title';
 import { forgetRecentGraph, rememberRecentGraph } from '../../utils/recent-graphs';
 import { fromTimeSpan } from '../../utils/time-span';
@@ -145,6 +146,9 @@ export class GraphComponent {
   /** A title that was picked to be shown, briefly highlighted. */
   protected readonly highlightedNodeId = signal<string | undefined>(undefined);
   private _highlightTimer?: ReturnType<typeof setTimeout>;
+  /** The home screen app has no browser controls, so its menu can reload the graph. */
+  protected readonly isHomeScreenApp = isHomeScreenApp();
+  protected readonly isReloading = signal(false);
   /** A short message shown at the top of the screen. */
   protected readonly notice = signal<{ text: string; error?: boolean } | undefined>(undefined);
   private _noticeTimer?: ReturnType<typeof setTimeout>;
@@ -388,6 +392,27 @@ export class GraphComponent {
     if (event.kind === 'create') {
       // The node only gets a position once the new layout has been computed.
       this._pendingPanToNodeId = event.node.id;
+    }
+  }
+
+  /** Loads the graph again, e.g. for changes made on another device. The view stays as it is. */
+  protected async reload() {
+    const graphId = this._graphId();
+    if (!graphId || this.isReloading()) return;
+    this.isReloading.set(true);
+    try {
+      const response = await this._graphsService.getGraph({ graphId });
+      if (!response.ok) throw response.error;
+      this.graph.set(response.body);
+      this.showNotice({ text: this.translate.translations.graph_reloaded() });
+    } catch {
+      // The graph that is shown stays, instead of the error page.
+      this.showNotice(
+        { text: this.translate.translations.graph_reloadFailed(), error: true },
+        4000
+      );
+    } finally {
+      this.isReloading.set(false);
     }
   }
 
