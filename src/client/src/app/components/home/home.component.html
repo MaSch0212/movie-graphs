@@ -92,7 +92,10 @@
     }
 
     <div class="mt-8 flex flex-col items-center gap-3">
-      <app-language-switcher placement="above" align="center" />
+      <div class="flex flex-wrap justify-center gap-1">
+        <app-theme-switcher placement="above" align="center" />
+        <app-language-switcher placement="above" align="center" />
+      </div>
       <p class="text-center text-xs text-muted/60">{{ version }}</p>
     </div>
   </main>

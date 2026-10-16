@@ -6,10 +6,11 @@ import { environment } from '../../environments/environment';
 import { TranslateService } from '../../i18n/translate.service';
 import { forgetRecentGraph, getRecentGraphs } from '../../utils/recent-graphs';
 import { LanguageSwitcherComponent } from '../ui/language-switcher/language-switcher.component';
+import { ThemeSwitcherComponent } from '../ui/theme-switcher/theme-switcher.component';
 
 @Component({
   selector: 'app-home',
-  imports: [LanguageSwitcherComponent, RouterLink],
+  imports: [LanguageSwitcherComponent, RouterLink, ThemeSwitcherComponent],
   templateUrl: './home.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'block min-h-full' },
