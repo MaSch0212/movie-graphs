@@ -21,6 +21,7 @@ import { ApiGraphNode } from '../../api/models';
 import { GraphsService } from '../../api/services';
 import { TranslateService } from '../../i18n/translate.service';
 import { ThemeService } from '../../theme/theme.service';
+import { formatDuration } from '../../utils/duration';
 import { episodeInfo, fullTitle, posterTitle } from '../../utils/node-title';
 import { forgetRecentGraph, rememberRecentGraph } from '../../utils/recent-graphs';
 import { fromTimeSpan } from '../../utils/time-span';
@@ -207,12 +208,7 @@ export class GraphComponent {
     const node = this.hoveredNode()?.data;
     if (!node) return '';
     const t = this.translate.translations;
-    return [
-      episodeInfo(node, t),
-      node.year,
-      node.whereToWatch,
-      node.duration ? `${node.duration.slice(0, 5)} ${t.graph_hours()}` : undefined,
-    ]
+    return [episodeInfo(node, t), node.year, node.whereToWatch, formatDuration(node.duration, t)]
       .filter(Boolean)
       .join(' · ');
   });

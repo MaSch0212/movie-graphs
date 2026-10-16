@@ -46,7 +46,6 @@
     "addTitle": "Titel hinzufügen",
     "resetView": "Ansicht zurücksetzen",
     "resetViewLabel": "Ansicht auf den nächsten Titel zurücksetzen",
-    "hours": "Std.",
     "copyGraph": "Graph kopieren",
     "downloadImage": "Als Bild herunterladen",
     "showTitles": "Titel anzeigen",
@@ -111,6 +110,11 @@
     "seasonShort": "St. {{ season }}",
     "episodeShort": "F. {{ from }}",
     "episodesShort": "F. {{ from }}–{{ to }}"
+  },
+  "duration": {
+    "hoursMinutes": "{{ hours }} Std. {{ minutes }} Min.",
+    "hours": "{{ hours }} Std.",
+    "minutes": "{{ minutes }} Min."
   },
   "node": {
     "addTitle": "Titel hinzufügen",

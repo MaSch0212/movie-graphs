@@ -16,6 +16,7 @@ import {
 import { ApiGraph, ApiGraphNode, ApiGraphNodeStatus } from '../../../api/models';
 import { GraphsService } from '../../../api/services';
 import { TranslateService } from '../../../i18n/translate.service';
+import { formatDuration } from '../../../utils/duration';
 import { episodeInfo } from '../../../utils/node-title';
 import { LayoutNode } from '../graph-layout';
 import { NodeChangeEvent } from '../graph-node-dialog/graph-node-dialog.component';
@@ -78,11 +79,7 @@ export class UpNextPanelComponent {
 
   protected details(node: ApiGraphNode) {
     const t = this.translate.translations;
-    return [
-      node.year,
-      node.whereToWatch,
-      node.duration ? `${node.duration.slice(0, 5)} ${t.graph_hours()}` : undefined,
-    ]
+    return [node.year, node.whereToWatch, formatDuration(node.duration, t)]
       .filter(Boolean)
       .join(' · ');
   }

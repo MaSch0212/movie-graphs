@@ -46,7 +46,6 @@
     "addTitle": "Add title",
     "resetView": "Reset view",
     "resetViewLabel": "Reset view to the next title",
-    "hours": "h",
     "copyGraph": "Copy graph",
     "downloadImage": "Download as image",
     "showTitles": "Show titles",
@@ -111,6 +110,11 @@
     "seasonShort": "S{{ season }}",
     "episodeShort": "E{{ from }}",
     "episodesShort": "E{{ from }}–{{ to }}"
+  },
+  "duration": {
+    "hoursMinutes": "{{ hours }} h {{ minutes }} min",
+    "hours": "{{ hours }} h",
+    "minutes": "{{ minutes }} min"
   },
   "node": {
     "addTitle": "Add title",
