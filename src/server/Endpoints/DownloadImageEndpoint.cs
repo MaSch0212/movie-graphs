@@ -9,7 +9,7 @@ using MovieGraphs.Services;
 namespace MovieGraphs.Endpoints;
 
 /// <param name="ImageId">The id of the image.</param>
-/// <param name="W">Optional width to scale the image down to (200, 400 or 800).</param>
+/// <param name="W">Optional width of the scaled down image (200, 400 or 800).</param>
 public record DownloadImageRequest(
     [property: Required] string ImageId,
     [property: QueryParam] int? W
@@ -28,11 +28,8 @@ public class DownloadImageRequestValidator : Validator<DownloadImageRequest>
     }
 }
 
-public class DownloadImageEndpoint(
-    DatabaseContext databaseContext,
-    IIdService idService,
-    IImageResizeService imageResizeService
-) : Endpoint<DownloadImageRequest>
+public class DownloadImageEndpoint(DatabaseContext databaseContext, IIdService idService)
+    : Endpoint<DownloadImageRequest>
 {
     public override void Configure()
     {
@@ -45,9 +42,17 @@ public class DownloadImageEndpoint(
     public override async Task HandleAsync(DownloadImageRequest req, CancellationToken ct)
     {
         var imageId = idService.Image.DecodeSingle(req.ImageId);
+        // The variants are created when the image is stored. Images that are already small
+        // enough (or can't be scaled, e.g. SVG) have none, so the original is sent instead.
+        var width = req.W;
         var image = await databaseContext
             .Images.Where(x => x.Id == imageId)
-            .Select(x => new { x.Data, x.LastModified })
+            .Select(x => new
+            {
+                Data = x.Variants.Where(v => v.Width == width).Select(v => v.Data).FirstOrDefault()
+                    ?? x.Data,
+                x.LastModified,
+            })
             .FirstOrDefaultAsync(ct);
 
         if (image == null)
@@ -57,12 +62,9 @@ public class DownloadImageEndpoint(
             return;
         }
 
-        var data = req.W is { } width
-            ? imageResizeService.Resize(imageId, image.LastModified, image.Data, width)
-            : image.Data;
-        var imageFormat = ImageDetector.GetImageFormat(data);
+        var imageFormat = ImageDetector.GetImageFormat(image.Data);
         await Send.BytesAsync(
-            data,
+            image.Data,
             fileName: $"image-{req.ImageId}{imageFormat.GetFileExtension()}",
             contentType: imageFormat.GetContentType(),
             lastModified: image.LastModified,

@@ -16,6 +16,7 @@ public class DatabaseContext(
     public DbSet<GraphNodeEntity> Nodes { get; set; } = null!;
     public DbSet<GraphEdgeEntity> Edges { get; set; } = null!;
     public DbSet<ImageEntity> Images { get; set; } = null!;
+    public DbSet<ImageVariantEntity> ImageVariants { get; set; } = null!;
     public DbSet<TemplateEntity> Templates { get; set; } = null!;
 
     public GraphEntity GraphById(long id)
@@ -47,6 +48,7 @@ public class DatabaseContext(
         builder.Entity<GraphNodeEntity>(GraphNodeEntity.Configure);
         builder.Entity<GraphEdgeEntity>(GraphEdgeEntity.Configure);
         builder.Entity<ImageEntity>(ImageEntity.Configure);
+        builder.Entity<ImageVariantEntity>(ImageVariantEntity.Configure);
         builder.Entity<TemplateEntity>(TemplateEntity.Configure);
     }
 

@@ -59,7 +59,8 @@ public class UpdateGraphNodeRequestValidator : Validator<UpdateGraphNodeRequest>
 public class UpdateGraphNodeEndpoint(
     DatabaseContext databaseContext,
     IIdService idService,
-    IGraphMapper graphMapper
+    IGraphMapper graphMapper,
+    IImageResizeService imageResizeService
 ) : Endpoint<UpdateGraphNodeRequest, UpdateGraphNodeResponse>
 {
     public override void Configure()
@@ -109,8 +110,13 @@ public class UpdateGraphNodeEndpoint(
                 return;
             }
 
+            // Only loaded when the image changes, the variants of the old image are deleted.
+            await databaseContext.Entry(node.Image).Collection(x => x.Variants).LoadAsync(ct);
             node.Image.Data = imageData;
             node.Image.LastModified = DateTimeOffset.UtcNow;
+            node.Image.Variants.Clear();
+            node.Image.Variants.AddRange(imageResizeService.CreateVariants(imageData));
+            node.Image.VariantsCreated = true;
         }
         if (req.Status is not null)
             node.Status = req.Status.Value;

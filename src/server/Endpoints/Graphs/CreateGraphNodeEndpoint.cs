@@ -57,8 +57,11 @@ public class CreateGraphNodeRequestValidator : Validator<CreateGraphNodeRequest>
     }
 }
 
-public class CreateGraphNodeEndpoint(DatabaseContext databaseContext, IIdService idService)
-    : Endpoint<CreateGraphNodeRequest, CreateGraphNodeResponse>
+public class CreateGraphNodeEndpoint(
+    DatabaseContext databaseContext,
+    IIdService idService,
+    IImageResizeService imageResizeService
+) : Endpoint<CreateGraphNodeRequest, CreateGraphNodeResponse>
 {
     public override void Configure()
     {
@@ -111,7 +114,13 @@ public class CreateGraphNodeEndpoint(DatabaseContext databaseContext, IIdService
             Season = type == GraphNodeType.Series ? req.Season : null,
             EpisodeFrom = type == GraphNodeType.Series ? req.EpisodeFrom : null,
             EpisodeTo = type == GraphNodeType.Series ? req.EpisodeTo : null,
-            Image = new ImageEntity { Name = req.Name, Data = imageData },
+            Image = new ImageEntity
+            {
+                Name = req.Name,
+                Data = imageData,
+                Variants = imageResizeService.CreateVariants(imageData),
+                VariantsCreated = true,
+            },
             Status = req.Status ?? GraphNodeStatus.Unwatched,
             Duration = req.Duration,
             WhereToWatch = string.IsNullOrWhiteSpace(req.WhereToWatch) ? null : req.WhereToWatch,

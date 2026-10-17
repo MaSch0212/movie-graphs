@@ -10,6 +10,14 @@ public class ImageEntity
     public byte[] Data { get; set; } = null!;
     public DateTimeOffset LastModified { get; set; } = DateTimeOffset.UtcNow;
 
+    /// <summary>
+    /// Whether the scaled down variants were created. Images stored before variants existed get
+    /// them once on startup (see <see cref="Services.ImageVariantMigration"/>).
+    /// </summary>
+    public bool VariantsCreated { get; set; }
+
+    public List<ImageVariantEntity> Variants { get; set; } = [];
+
     public static void Configure(EntityTypeBuilder<ImageEntity> builder)
     {
         builder.ToTable("images");
@@ -22,6 +30,7 @@ public class ImageEntity
             .HasColumnName("last_modified")
             .IsRequired()
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
+        builder.Property(x => x.VariantsCreated).HasColumnName("variants_created").IsRequired();
 
         builder.HasKey(x => x.Id);
     }

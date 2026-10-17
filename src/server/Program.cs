@@ -27,9 +27,6 @@ builder.Services.ConfigureOptions(configureJsonSerializerOptions);
 builder.Services.AddSingleton<IIdService, IdService>();
 builder.Services.AddSingleton<IImageResizeService, ImageResizeService>();
 
-// Holds resized images (sizes in bytes), so they don't need to be resized on every request.
-builder.Services.AddMemoryCache(o => o.SizeLimit = 64 * 1024 * 1024);
-
 builder.Services.AddScoped<IGraphMapper, GraphMapper>();
 
 builder.Services.AddDbContext<DatabaseContext>();
@@ -134,6 +131,11 @@ using (var scope = app.Services.CreateScope())
     {
         using var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
         dbContext.Database.Migrate();
+        ImageVariantMigration.Run(
+            dbContext,
+            scope.ServiceProvider.GetRequiredService<IImageResizeService>(),
+            app.Logger
+        );
     }
 }
 

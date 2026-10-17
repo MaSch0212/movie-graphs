@@ -143,9 +143,33 @@ namespace MovieGraphs.Data.Migrations.Sqlite
                         .HasColumnType("TEXT")
                         .HasColumnName("name");
 
+                    b.Property<bool>("VariantsCreated")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("variants_created");
+
                     b.HasKey("Id");
 
                     b.ToTable("images", (string)null);
+                });
+
+            modelBuilder.Entity("MovieGraphs.Data.Entities.ImageVariantEntity", b =>
+                {
+                    b.Property<long>("ImageId")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("image_id");
+
+                    b.Property<int>("Width")
+                        .HasColumnType("INTEGER")
+                        .HasColumnName("width");
+
+                    b.Property<byte[]>("Data")
+                        .IsRequired()
+                        .HasColumnType("BLOB")
+                        .HasColumnName("data");
+
+                    b.HasKey("ImageId", "Width");
+
+                    b.ToTable("image_variants", (string)null);
                 });
 
             modelBuilder.Entity("MovieGraphs.Data.Entities.TemplateEntity", b =>
@@ -209,6 +233,17 @@ namespace MovieGraphs.Data.Migrations.Sqlite
                     b.Navigation("Image");
                 });
 
+            modelBuilder.Entity("MovieGraphs.Data.Entities.ImageVariantEntity", b =>
+                {
+                    b.HasOne("MovieGraphs.Data.Entities.ImageEntity", "Image")
+                        .WithMany("Variants")
+                        .HasForeignKey("ImageId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Image");
+                });
+
             modelBuilder.Entity("MovieGraphs.Data.Entities.GraphEntity", b =>
                 {
                     b.Navigation("Nodes");
@@ -219,6 +254,11 @@ namespace MovieGraphs.Data.Migrations.Sqlite
                     b.Navigation("IncomingEdges");
 
                     b.Navigation("OutgoingEdges");
+                });
+
+            modelBuilder.Entity("MovieGraphs.Data.Entities.ImageEntity", b =>
+                {
+                    b.Navigation("Variants");
                 });
 #pragma warning restore 612, 618
         }

@@ -53,6 +53,7 @@ public class CopyGraphEndpoint(
             .Graphs.AsNoTracking()
             .Include(x => x.Nodes)
                 .ThenInclude(x => x.Image)
+                    .ThenInclude(x => x.Variants)
             .Include(x => x.Nodes)
                 .ThenInclude(x => x.OutgoingEdges)
             .AsSplitQuery()
@@ -81,6 +82,15 @@ public class CopyGraphEndpoint(
                     Name = node.Image.Name,
                     Data = node.Image.Data,
                     LastModified = node.Image.LastModified,
+                    Variants =
+                    [
+                        .. node.Image.Variants.Select(variant => new ImageVariantEntity
+                        {
+                            Width = variant.Width,
+                            Data = variant.Data,
+                        }),
+                    ],
+                    VariantsCreated = node.Image.VariantsCreated,
                 },
                 Status = req.ResetStatus ? GraphNodeStatus.Unwatched : node.Status,
                 Duration = node.Duration,
