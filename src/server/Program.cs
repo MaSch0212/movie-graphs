@@ -139,16 +139,20 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// DEBUG
-using (var scope = app.Services.CreateScope())
+if (app.Services.GetRequiredService<IOptions<LoggingOptions>>().Value.ListGraphsOnStartup)
 {
+    using var scope = app.Services.CreateScope();
     var dbContext = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
     var idService = scope.ServiceProvider.GetRequiredService<IIdService>();
-    dbContext
-        .Graphs.ForEachAsync(g =>
-            Console.WriteLine($"Graph {idService.Graph.Encode(g.Id)} ({g.Id}): {g.Name}")
-        )
-        .Wait();
+    foreach (var graph in dbContext.Graphs.AsNoTracking().OrderBy(x => x.Id))
+    {
+        app.Logger.LogInformation(
+            "Graph {GraphId} ({Id}): {Name}",
+            idService.Graph.Encode(graph.Id),
+            graph.Id,
+            graph.Name
+        );
+    }
 }
 
 app.Run();

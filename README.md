@@ -18,11 +18,12 @@ docker run -d \
 
 ### Environment Variables
 
-| Variable                     | Description                                    | Required | Default                           |
-| ---------------------------- | ---------------------------------------------- | -------- | --------------------------------- |
-| `IDS__SEED`                  | The seed for the id obfuscation.               | Yes      | -                                 |
-| `LOGGING__ENABLEDBLOGGING`   | Enable database logging.                       | No       | `false`                           |
-| `DATABASE__CONNECTIONSTRING` | The connection string for the SQLite database. | No       | `Data Source=data/MovieGraphs.db` |
+| Variable                       | Description                                                 | Required | Default                           |
+| ------------------------------ | ----------------------------------------------------------- | -------- | --------------------------------- |
+| `IDS__SEED`                    | The seed for the id obfuscation.                            | Yes      | -                                 |
+| `LOGGING__ENABLEDBLOGGING`     | Enable database logging.                                    | No       | `false`                           |
+| `LOGGING__LISTGRAPHSONSTARTUP` | Write the id and name of every graph to the log on startup. | No       | `false`                           |
+| `DATABASE__CONNECTIONSTRING`   | The connection string for the SQLite database.              | No       | `Data Source=data/MovieGraphs.db` |
 
 ## Build
 
